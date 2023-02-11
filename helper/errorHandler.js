@@ -1,27 +1,16 @@
-const commonErrorHandler = async (
-  req,
-  res,
-  message,
-  statusCode = 500,
-  error = null
-) => {
+const commonErrorHandler = async (res, message, statusCode = 500) => {
   let errorMessage = "Something went wrong. Please try again";
   if (message) {
     errorMessage = message;
   }
-
-  if (error && error.message) {
-    errorMessage = error.message;
-  }
-  req.error = error;
 
   const response = {
     statusCode,
     data: {},
     message: errorMessage,
   };
-
-  res.status(statusCode).json(response);
+  console.error(message);
+  res.status(statusCode).send(response);
 };
 
 module.exports = {
