@@ -3,6 +3,8 @@ const cors = require("cors");
 const helmet = require("helmet");
 const compression = require("compression");
 
+const { commonErrorHandler } = require("./helper/errorHandler");
+
 const app = express();
 app.use(express.json());
 
@@ -22,7 +24,7 @@ app.use("/health", (_req, res) => {
 // 404 Error Handling
 app.use((req, res) => {
   const message = "Invalid endpoint";
-  commonErrorHandler(req, res, message, 400);
+  commonErrorHandler(req, res, message, 404);
 });
 
 module.exports = app;
