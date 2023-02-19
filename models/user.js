@@ -29,12 +29,18 @@ module.exports = (sequelize, DataTypes) => {
       },
       resetPasswordToken: {
         type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null,
       },
       resetPasswordExpires: {
         type: Sequelize.BIGINT,
+        allowNull: true,
+        defaultValue: null,
       },
       resetPasswordTokenUse: {
         type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: null,
       },
     },
     {
