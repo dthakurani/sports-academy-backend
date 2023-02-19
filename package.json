@@ -25,6 +25,8 @@
     "helmet": "^6.0.1",
     "pg": "^8.9.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.28.0"
+    "sequelize": "^6.28.0",
+    "yup": "^1.0.0",
+    "yup-password": "^0.2.2"
   }
 }
