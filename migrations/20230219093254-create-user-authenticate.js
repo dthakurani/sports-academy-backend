@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -7,7 +7,7 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
-        defaultValue: Sequelize.literal('uuid_generate_v4()')
+        defaultValue: Sequelize.literal("uuid_generate_v4()"),
       },
       user_id: {
         type: Sequelize.UUID,
@@ -16,10 +16,10 @@ module.exports = {
           key: "id",
         },
       },
-      refreshTokenId: {
+      refresh_token_id: {
         type: Sequelize.STRING,
       },
-      accessTokenId: {
+      access_token_id: {
         type: Sequelize.STRING,
       },
       created_at: {
@@ -36,5 +36,5 @@ module.exports = {
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable("user_authenticate");
-  }
+  },
 };

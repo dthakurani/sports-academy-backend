@@ -7,7 +7,7 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
-        defaultValue: Sequelize.literal('uuid_generate_v4()')
+        defaultValue: Sequelize.literal("uuid_generate_v4()"),
       },
       name: {
         type: Sequelize.STRING,
@@ -23,17 +23,17 @@ module.exports = {
         values: ["admin", "user"],
         defaultValue: "user",
       },
-      resetPasswordToken: {
+      reset_password_token: {
         type: Sequelize.STRING,
         allowNull: true,
         defaultValue: null,
       },
-      resetPasswordExpires: {
+      reset_password_expires: {
         type: Sequelize.BIGINT,
         allowNull: true,
         defaultValue: null,
       },
-      resetPasswordTokenUse: {
+      reset_password_token_use: {
         type: Sequelize.BOOLEAN,
         allowNull: true,
         defaultValue: null,
