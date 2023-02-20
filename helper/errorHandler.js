@@ -20,7 +20,7 @@ const validator = async (req, res, schema, next) => {
       query: req.query,
       params: req.params
     })
-    return next()
+    return next();
   } catch (error){
     res.status(400).send({type: error.name, message: error.message})
   }

@@ -25,5 +25,5 @@ const addUserSchema = async (req, res, next) => {
 };
 
 module.exports = {
-  addUserSchema,
+  addUser,
 };
