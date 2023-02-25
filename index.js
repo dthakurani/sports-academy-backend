@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 const app = require("./app");
-const {sequelize} = require('./models');
+const { sequelize } = require("./models");
 const { commonErrorHandler } = require("./helper/errorHandler");
 
 const startServer = async function () {
@@ -11,7 +11,8 @@ const startServer = async function () {
     app.listen(process.env.SERVER_PORT);
     console.log(`--- Server started on ${process.env.SERVER_PORT} ---\n\n`);
   } catch (error) {
-    commonErrorHandler(res, error, 500);
+    console.log("server setup failed", err);
+    console.log("Error: ", err.message);
   }
 };
 
