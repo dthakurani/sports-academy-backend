@@ -1,21 +1,21 @@
-const fs = require("fs");
-const { resolve } = require("path");
-const routesFolder = resolve("./routes");
+const fs = require('fs');
+const { resolve } = require('path');
+const routesFolder = resolve('./routes');
 
 function camelCaseToDash(myStr) {
-  return myStr.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+  return myStr.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 }
 
 // HELPER FUNCTION TO GET ALL ROUTES PATH
 const getAllRoutesPath = function () {
   const allRoutesPath = [];
 
-  fs.readdirSync(routesFolder).forEach((file) => {
+  fs.readdirSync(routesFolder).forEach(file => {
     const fullPath = `${routesFolder}/${file}`;
-    if (fs.existsSync(fullPath) && fullPath.endsWith(".route.js")) {
+    if (fs.existsSync(fullPath) && fullPath.endsWith('.route.js')) {
       allRoutesPath.push({
-        fullPath: fullPath.replace(".js", ""),
-        fileName: file.replace(".route.js", ""),
+        fullPath: fullPath.replace('.js', ''),
+        fileName: file.replace('.route.js', '')
       });
     }
   });
@@ -34,5 +34,5 @@ const registerRoutes = function (expressInstance) {
 };
 
 module.exports = {
-  registerRoutes,
+  registerRoutes
 };
