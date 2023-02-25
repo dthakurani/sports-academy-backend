@@ -8,7 +8,9 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      this.hasOne(models.UserAuthenticate, {
+        foreignKey: "userId"
+      });
     }
   }
   User.init(
@@ -29,12 +31,18 @@ module.exports = (sequelize, DataTypes) => {
       },
       resetPasswordToken: {
         type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null,
       },
       resetPasswordExpires: {
         type: Sequelize.BIGINT,
+        allowNull: true,
+        defaultValue: null,
       },
       resetPasswordTokenUse: {
         type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: null,
       },
     },
     {
