@@ -47,8 +47,6 @@ const adminSeedScript = () => {
         console.log(colors.cyan("You are good to go."));
       } catch (error) {
         console.log("admin seed script error:", error);
-        const statusCode = error.statusCode || 500;
-        commonErrorHandler(req, res, error.message, statusCode, error);
       }
     }
   );

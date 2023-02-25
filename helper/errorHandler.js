@@ -24,14 +24,28 @@ const commonErrorHandler = async (
   res.status(statusCode).send(response);
 };
 
-const CustomException = function (message) {
+const validator = async (req, res, schema, next) => {
+  try{
+    await schema.validate({
+      body: req.body,
+      query: req.query,
+      params: req.params
+    })
+    return next();
+  } catch (error){
+    res.status(400).send({type: error.name, message: error.message})
+  }
+}
+
+const customException = function (message, statusCode) {
   const error = new Error(message);
-  error.statusCode = 422;
+  error.statusCode = statusCode || 422;
   return error;
 };
-CustomException.prototype = Object.create(Error.prototype);
+customException.prototype = Object.create(Error.prototype);
 
 module.exports = {
   commonErrorHandler,
-  CustomException,
+  validator,
+  customException,
 };
