@@ -1,6 +1,5 @@
-"use strict";
-const { Model, Sequelize } = require("sequelize");
-module.exports = (sequelize, DataTypes) => {
+const { Model, Sequelize } = require('sequelize');
+module.exports = sequelize => {
   class User extends Model {
     /**
      * Helper method for defining associations.
@@ -9,47 +8,47 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       this.hasOne(models.UserAuthenticate, {
-        foreignKey: "userId"
+        foreignKey: 'userId'
       });
     }
   }
   User.init(
     {
       name: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING
       },
       email: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING
       },
       password: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING
       },
       role: {
         type: Sequelize.ENUM,
-        values: ["admin", "user"],
-        defaultValue: "user",
+        values: ['admin', 'user'],
+        defaultValue: 'user'
       },
       resetPasswordToken: {
         type: Sequelize.STRING,
         allowNull: true,
-        defaultValue: null,
+        defaultValue: null
       },
       resetPasswordExpires: {
         type: Sequelize.BIGINT,
         allowNull: true,
-        defaultValue: null,
+        defaultValue: null
       },
       resetPasswordTokenUse: {
         type: Sequelize.BOOLEAN,
         allowNull: true,
-        defaultValue: null,
-      },
+        defaultValue: null
+      }
     },
     {
       sequelize,
       paranoid: true,
-      modelName: "User",
-      tableName: "user",
+      modelName: 'User',
+      tableName: 'user'
     }
   );
   return User;
