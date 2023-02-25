@@ -1,8 +1,10 @@
 const model = require("..//models");
+const {hash} = require("bcrypt");
 
 const addUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    const hashedPassword = await hash(password, 10);
 
     const existingUser = await model.User.findOne({
       where: {
@@ -20,7 +22,7 @@ const addUser = async (req, res) => {
     const newUser = await model.User.create({
       name: name,
       email: email,
-      password: password,
+      password: hashedPassword,
     });
 
     return res.status(200).send("user created successfully.");

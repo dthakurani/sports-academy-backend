@@ -19,7 +19,6 @@ app.use(helmet());
 app.use(compression());
 
 // REST API entry point
-console.log('hello');
 routes.registerRoutes(app);
 
 app.use("/health", (_req, res) => {

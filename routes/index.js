@@ -24,7 +24,6 @@ const getAllRoutesPath = function () {
 
 // MAIN FUNCTION TO REGISTER ALL ROUTES
 const registerRoutes = function (expressInstance) {
-    console.log('hello');
   const allRoutesPath = getAllRoutesPath();
   // LOAD ALL NESTED ROUTES FILE
   for (const routeFile of allRoutesPath) {
