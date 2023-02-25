@@ -1,11 +1,5 @@
-const commonErrorHandler = async (
-  req,
-  res,
-  message,
-  statusCode = 500,
-  error = null
-) => {
-  let errorMessage = "Something went wrong. Please try again";
+const commonErrorHandler = async (req, res, message, statusCode = 500, error = null) => {
+  let errorMessage = 'Something went wrong. Please try again';
   if (message) {
     errorMessage = message;
   }
@@ -18,20 +12,20 @@ const commonErrorHandler = async (
   const response = {
     statusCode,
     data: {},
-    message: errorMessage,
+    message: errorMessage
   };
 
   res.status(statusCode).send(response);
 };
 
-const CustomException = function (message) {
+const CustomException = function (message, statusCode) {
   const error = new Error(message);
-  error.statusCode = 422;
+  error.statusCode = statusCode || 422;
   return error;
 };
 CustomException.prototype = Object.create(Error.prototype);
 
 module.exports = {
   commonErrorHandler,
-  CustomException,
+  CustomException
 };

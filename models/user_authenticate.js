@@ -1,8 +1,5 @@
-'use strict';
-const {
-  Model, Sequelize
-} = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
+const { Model, Sequelize } = require('sequelize');
+module.exports = sequelize => {
   class UserAuthenticate extends Model {
     /**
      * Helper method for defining associations.
@@ -11,25 +8,29 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       this.belongsTo(models.User, {
-        foreignKey: "userId",
-        targetKey: "id",
-        as: "user"
-      })
+        foreignKey: 'userId',
+        targetKey: 'id',
+        as: 'user'
+      });
     }
   }
-  UserAuthenticate.init({
-    userId: {type: Sequelize.UUID,
-      references: {
-        model: "user",
-        key: "id"
-      }
+  UserAuthenticate.init(
+    {
+      userId: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'user',
+          key: 'id'
+        }
+      },
+      refreshTokenId: Sequelize.STRING,
+      accessTokenId: Sequelize.STRING
     },
-    refreshTokenId: Sequelize.STRING,
-    accessTokenId: Sequelize.STRING
-  }, {
-    sequelize,
-    modelName: 'UserAuthenticate',
-    tableName: 'user_authenticate'
-  });
+    {
+      sequelize,
+      modelName: 'UserAuthenticate',
+      tableName: 'user_authenticate'
+    }
+  );
   return UserAuthenticate;
 };
