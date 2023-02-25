@@ -3,7 +3,6 @@ const colors = require('@colors/colors/safe');
 const { hash } = require('bcrypt');
 
 const models = require('./models');
-const { CustomException } = require('./helper/errorHandler');
 
 const adminSeedScript = () => {
   prompt.start();
@@ -46,8 +45,6 @@ const adminSeedScript = () => {
         console.log(colors.cyan('You are good to go.'));
       } catch (error) {
         console.log('admin seed script error:', error);
-        const statusCode = error.statusCode || 500;
-        CustomException(error.message, statusCode);
       }
     }
   );
