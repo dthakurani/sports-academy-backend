@@ -4,7 +4,8 @@ const responseMessages = {
   EMAIL_IS_REQUIRED: 'email is a required field.',
   INVALID_EMAIL: 'email must be valid string.',
   PASSWORD_IS_REQUIRED: 'password is required field.',
-  INVALID_PASSWORD: 'password must be a valid field.'
+  INVALID_PASSWORD: 'password must be a valid field.',
+  TOKEN_IS_REQUIRED: 'link is not valid.'
 };
 
 module.exports = {
