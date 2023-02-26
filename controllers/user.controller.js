@@ -1,15 +1,16 @@
-const { hash } = require('bcrypt');
+const bcrypt = require('bcrypt');
 const path = require('path');
 const ejs = require('ejs');
 
 const model = require('../models');
 const { customException, commonErrorHandler } = require('../helper/errorHandler');
-const mailer = require('../helper/mailer');
+const { generateToken } = require('../helper/common-function');
+const { mailer } = require('../helper/mailer');
 
-const addUser = async (req, res) => {
+const addUser = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
-    const hashedPassword = await hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const existingUser = await model.User.findOne({
       where: {
@@ -21,21 +22,28 @@ const addUser = async (req, res) => {
       throw customException('User already exists', 409);
     }
 
-    await model.User.create({
+    const newUser = await model.User.create({
       name,
       email,
       password: hashedPassword
     });
-
-    return res.status(200).send('user created successfully.');
+    const tokens = await generateToken(newUser.dataValues.id);
+    req.statusCode = 201;
+    req.data = {
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      tokens
+    };
+    next();
   } catch (error) {
     console.log('addUser error: ', error);
     const statusCode = error.statusCode || 500;
-    return commonErrorHandler(req, res, error.message, statusCode, error);
+    commonErrorHandler(req, res, error.message, statusCode, error);
   }
 };
 
-const forgetPassword = async (req, res) => {
+const forgetPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
     const user = await model.User.findOne({
@@ -62,15 +70,19 @@ const forgetPassword = async (req, res) => {
       subject: 'Reset password',
       html: template
     });
-    return res.status(200).send({ message: 'successful' });
+    req.statusCode = 200;
+    req.data = {
+      message: 'Link for reset password sent to your email.'
+    };
+    next();
   } catch (error) {
     console.log('forgetPassword error: ', error);
     const statusCode = error.statusCode || 500;
-    return commonErrorHandler(req, res, error.message, statusCode, error);
+    commonErrorHandler(req, res, error.message, statusCode, error);
   }
 };
 
-const resetPassword = async (req, res) => {
+const resetPassword = async (req, res, next) => {
   try {
     const resetToken = req.params.token;
     console.log(resetToken);
@@ -84,7 +96,7 @@ const resetPassword = async (req, res) => {
     if (currentTime > existingResetToken.dataValues.reset_password_expires) throw currentTime('link expired', 498);
 
     await model.User.update(
-      { password: await hash(password, 10), resetPasswordToken: null, resetPasswordExpires: null },
+      { password: await bcrypt.hash(password, 10), resetPasswordToken: null, resetPasswordExpires: null },
       { where: { id: existingResetToken.dataValues.id } }
     );
     const templatePath = path.resolve('./templates/password-change.ejs');
@@ -94,16 +106,57 @@ const resetPassword = async (req, res) => {
       subject: 'Password reset successfull',
       html: template
     });
-    return res.status(200).send({ message: 'successful' });
+    req.statusCode = 200;
+    req.data = {
+      message: 'Password reset successfully.'
+    };
+    next();
   } catch (error) {
     console.log('resetPassword error: ', error);
     const statusCode = error.statusCode || 500;
-    return commonErrorHandler(req, res, error.message, statusCode, error);
+    commonErrorHandler(req, res, error.message, statusCode, error);
+  }
+};
+
+const loginUser = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    const existingUser = await model.User.findOne({
+      where: {
+        email
+      }
+    });
+    if (!existingUser) {
+      throw customException('Email or Password is incorrect.', 401);
+    }
+
+    const passwordIsValid = await bcrypt.compare(password, existingUser.password);
+
+    if (!passwordIsValid) {
+      throw customException('Email or Password is incorrect.', 401);
+    }
+
+    const tokens = await generateToken(existingUser.dataValues.id);
+
+    req.statusCode = 200;
+    req.data = {
+      id: existingUser.id,
+      name: existingUser.name,
+      email: existingUser.email,
+      tokens
+    };
+    next();
+  } catch (error) {
+    console.log('getModelFieldData error:', error);
+    const statusCode = error.status || 500;
+    commonErrorHandler(req, res, error.message, statusCode, error);
   }
 };
 
 module.exports = {
   addUser,
+  loginUser,
   forgetPassword,
   resetPassword
 };

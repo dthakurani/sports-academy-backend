@@ -18,18 +18,6 @@ const commonErrorHandler = async (req, res, message, statusCode = 500, error = n
   res.status(statusCode).send(response);
 };
 
-const validator = async (req, res, schema, next) => {
-  try {
-    await schema.validate({
-      body: req.body,
-      query: req.query,
-      params: req.params
-    });
-    return next();
-  } catch (error) {
-    return res.status(400).send({ type: error.name, message: error.message });
-  }
-};
 const customException = function (message, statusCode) {
   const error = new Error(message);
   error.statusCode = statusCode || 422;
@@ -39,6 +27,5 @@ customException.prototype = Object.create(Error.prototype);
 
 module.exports = {
   commonErrorHandler,
-  validator,
   customException
 };
