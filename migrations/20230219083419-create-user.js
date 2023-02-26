@@ -32,11 +32,6 @@ module.exports = {
         allowNull: true,
         defaultValue: null
       },
-      reset_password_token_use: {
-        type: Sequelize.BOOLEAN,
-        allowNull: true,
-        defaultValue: null
-      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
