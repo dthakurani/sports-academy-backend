@@ -93,7 +93,7 @@ const resetPassword = async (req, res, next) => {
     });
     if (!existingResetToken) throw customException('invalid link', 404);
     const currentTime = new Date().getTime();
-    if (currentTime > existingResetToken.dataValues.reset_password_expires) throw currentTime('link expired', 498);
+    if (currentTime > existingResetToken.dataValues.reset_password_expires) throw customException('link expired', 498);
 
     await model.User.update(
       { password: await bcrypt.hash(password, 10), resetPasswordToken: null, resetPasswordExpires: null },
