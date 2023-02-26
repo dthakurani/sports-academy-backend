@@ -52,13 +52,13 @@ const loginUser = async (req, res, next) => {
       }
     });
     if (!existingUser) {
-      throw customException('Email or Password is incorrect.', 404);
+      throw customException('Email or Password is incorrect.', 401);
     }
 
     const passwordIsValid = await bcrypt.compare(password, existingUser.password);
 
     if (!passwordIsValid) {
-      throw customException('Email or Password is incorrect.', 404);
+      throw customException('Email or Password is incorrect.', 401);
     }
 
     const tokens = await generateToken(existingUser.dataValues.id);
