@@ -37,11 +37,6 @@ module.exports = sequelize => {
         type: Sequelize.BIGINT,
         allowNull: true,
         defaultValue: null
-      },
-      resetPasswordTokenUse: {
-        type: Sequelize.BOOLEAN,
-        allowNull: true,
-        defaultValue: null
       }
     },
     {
