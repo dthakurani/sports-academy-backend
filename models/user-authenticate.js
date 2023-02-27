@@ -23,8 +23,12 @@ module.exports = sequelize => {
           key: 'id'
         }
       },
-      refreshTokenId: Sequelize.STRING,
-      accessTokenId: Sequelize.STRING
+      refreshTokenId: {
+        type: Sequelize.STRING
+      },
+      accessTokenId: {
+        type: Sequelize.STRING
+      }
     },
     {
       sequelize,
