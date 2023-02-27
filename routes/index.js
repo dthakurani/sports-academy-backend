@@ -28,7 +28,6 @@ const registerRoutes = function (expressInstance) {
   // LOAD ALL NESTED ROUTES FILE
   for (const routeFile of allRoutesPath) {
     const router = require(routeFile.fullPath);
-    console.log(`/api/${camelCaseToDash(routeFile.fileName)}`);
     expressInstance.use(`/api/${camelCaseToDash(routeFile.fileName)}`, router);
   }
 };
