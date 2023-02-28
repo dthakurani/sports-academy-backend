@@ -16,7 +16,7 @@ module.exports = sequelize => {
     {
       sequelize,
       modelName: 'Court',
-      tableName: 'Court'
+      tableName: 'court'
     }
   );
   return Court;
