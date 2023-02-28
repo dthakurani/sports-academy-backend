@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
-const config = require('../config/config');
 const model = require('../models');
 
 const generateToken = async userId => {
@@ -13,11 +13,11 @@ const generateToken = async userId => {
   };
   await model.UserAuthenticate.create(body);
 
-  const refereshToken = jwt.sign({ userId, tokenId: refreshTokenId }, config.refereshSecretKey, {
+  const refereshToken = jwt.sign({ userId, tokenId: refreshTokenId }, process.env.REFERESH_SECRET_KEY, {
     expiresIn: 900
   });
 
-  const accessToken = jwt.sign({ userId, tokenId: accessTokenId }, config.accessSecretKey, {
+  const accessToken = jwt.sign({ userId, tokenId: accessTokenId }, process.env.ACCESS_SECRET_KEY, {
     expiresIn: 86400
   });
 

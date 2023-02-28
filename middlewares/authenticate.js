@@ -10,7 +10,7 @@ const checkAccessToken = async (req, res, next) => {
     if (!accessToken) {
       throw customException('Access denied', 401);
     }
-    const decodedJwt = jwt.verify(accessToken, process.env.ACCCESS_SECRET_KEY);
+    const decodedJwt = jwt.verify(accessToken, process.env.ACCESS_SECRET_KEY);
     const existingLogin = await models.UserAuthenticate.findOne({
       where: {
         userId: decodedJwt.userId,
