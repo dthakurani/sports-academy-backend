@@ -148,7 +148,37 @@ const loginUser = async (req, res, next) => {
     };
     next();
   } catch (error) {
-    console.log('getModelFieldData error:', error);
+    console.log('loginUser error:', error);
+    const statusCode = error.status || 500;
+    commonErrorHandler(req, res, error.message, statusCode, error);
+  }
+};
+
+const updateUser = async (req, res, next) => {
+  try {
+    const { body, user } = req;
+    const existingUser = await model.User.findOne({
+      where: {
+        id: user.id
+      }
+    });
+
+    if (!existingUser) throw customException('User not found', 404);
+
+    await model.User.update(body, {
+      where: {
+        id: user.id
+      }
+    });
+
+    req.data = {
+      id: user.id,
+      name: body.name || user.name,
+      email: body.email || user.email
+    };
+    next();
+  } catch (error) {
+    console.log('updateUser error:', error);
     const statusCode = error.status || 500;
     commonErrorHandler(req, res, error.message, statusCode, error);
   }
@@ -158,5 +188,6 @@ module.exports = {
   addUser,
   loginUser,
   forgetPassword,
-  resetPassword
+  resetPassword,
+  updateUser
 };
