@@ -1,5 +1,3 @@
-const { clearConfigCache } = require('prettier');
-const models = require('../models');
 const { customException, commonErrorHandler } = require('../helper/errorHandler');
 
 const checkAdmin = async (req, res, next) => {

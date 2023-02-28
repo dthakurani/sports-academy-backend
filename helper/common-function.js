@@ -16,7 +16,7 @@ const generateToken = async userId => {
   const refereshToken = jwt.sign({ userId, tokenId: refreshTokenId }, process.env.REFERESH_SECRET_KEY, {
     expiresIn: 900
   });
-  
+
   const accessToken = jwt.sign({ userId, tokenId: accessTokenId }, process.env.ACCESS_SECRET_KEY, {
     expiresIn: 86400
   });
