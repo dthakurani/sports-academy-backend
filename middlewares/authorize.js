@@ -7,7 +7,7 @@ const checkAdmin = async (req, res, next) => {
     const isAdmin = user.role;
 
     if (isAdmin !== 'admin') {
-      throw customException('User is not authorized.', 401);
+      throw customException('User is not authorized.', 403);
     }
 
     return next();
