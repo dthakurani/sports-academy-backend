@@ -48,6 +48,7 @@ const checkRefreshToken = async (req, res, next) => {
     if (!existingLogin) throw customException('Please Login', 401);
 
     req.user = existingLogin.dataValues;
+    req.refreshToken = refreshToken;
     next();
   } catch (error) {
     console.log('checkRefreshTOken error:', error);

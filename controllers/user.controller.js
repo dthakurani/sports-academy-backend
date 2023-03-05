@@ -204,7 +204,8 @@ const generateAccessToken = async (req, res, next) => {
     const newAccessToken = jwt.sign({ userId: user.userId, tokenId: accessToken }, process.env.ACCESS_SECRET_KEY);
 
     req.data = {
-      accessToken: newAccessToken
+      accessToken: newAccessToken,
+      refreshToken: req.refreshToken
     };
     next();
   } catch (error) {
