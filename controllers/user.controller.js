@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const path = require('path');
 const ejs = require('ejs');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const model = require('../models');
 const { customException, commonErrorHandler } = require('../helper/errorHandler');
@@ -85,7 +87,7 @@ const forgetPassword = async (req, res, next) => {
 const resetPassword = async (req, res, next) => {
   try {
     const resetToken = req.params.token;
-    console.log(resetToken);
+
     const { password } = req.body;
 
     const existingResetToken = await model.User.findOne({
@@ -184,10 +186,40 @@ const updateUser = async (req, res, next) => {
   }
 };
 
+const generateAccessToken = async (req, res, next) => {
+  try {
+    const { user } = req;
+
+    const accessToken = crypto.randomUUID();
+
+    await model.UserAuthenticate.update(
+      {
+        accessTokenId: accessToken
+      },
+      {
+        where: { refreshTokenId: user.refreshTokenId }
+      }
+    );
+
+    const newAccessToken = jwt.sign({ userId: user.userId, tokenId: accessToken }, process.env.ACCESS_SECRET_KEY);
+
+    req.data = {
+      accessToken: newAccessToken,
+      refreshToken: req.refreshToken
+    };
+    next();
+  } catch (error) {
+    console.log('generate access token error: ', error);
+    const statusCode = error.statusCode || 500;
+    commonErrorHandler(req, res, error.message, statusCode, error);
+  }
+};
+
 module.exports = {
   addUser,
   loginUser,
   forgetPassword,
   resetPassword,
-  updateUser
+  updateUser,
+  generateAccessToken
 };
