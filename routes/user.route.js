@@ -13,6 +13,7 @@ router.post('/', userValidator.addUserSchema, userController.addUser, responseHa
 router.patch('/', checkAccessToken, userValidator.updateUserSchema, userController.updateUser, responseHandler);
 router.post('/login', userValidator.loginUserSchema, userController.loginUser, responseHandler);
 router.post('/generate-access-token', checkRefreshToken, userController.generateAccessToken, responseHandler);
+router.delete('/', checkRefreshToken, userController.deleteUser, responseHandler);
 router.post('/logout', checkRefreshToken, userController.logoutUser, responseHandler);
 
 module.exports = router;
