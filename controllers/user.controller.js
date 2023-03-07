@@ -8,6 +8,7 @@ const model = require('../models');
 const { customException, commonErrorHandler } = require('../helper/errorHandler');
 const { generateToken } = require('../helper/common-function');
 const { mailer } = require('../helper/mailer');
+const { sequelize } = require('../models');
 
 const addUser = async (req, res, next) => {
   try {
@@ -215,11 +216,40 @@ const generateAccessToken = async (req, res, next) => {
   }
 };
 
+const deleteUser = async (req, res, next) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const { userId, refreshTokenId } = req.user;
+    await model.UserAuthenticate.destroy({
+      where: {
+        userId,
+        refreshTokenId
+      },
+      transaction
+    });
+    await model.User.destroy({
+      where: {
+        id: userId
+      },
+      transaction
+    });
+    await transaction.commit();
+    req.statusCode = 204;
+    next();
+  } catch (error) {
+    await transaction.rollback();
+    console.log('userDelete error: ', error);
+    const statusCode = error.statusCode || 500;
+    commonErrorHandler(req, res, error.message, statusCode, error);
+  }
+};
+
 module.exports = {
   addUser,
   loginUser,
   forgetPassword,
   resetPassword,
   updateUser,
-  generateAccessToken
+  generateAccessToken,
+  deleteUser
 };
