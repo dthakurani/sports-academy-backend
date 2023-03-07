@@ -215,6 +215,28 @@ const generateAccessToken = async (req, res, next) => {
   }
 };
 
+const logout = async(req, res, next) => {
+  try {
+    const {user} = req;
+
+    await model.UserA_iduthenticate.destroy({
+      where {
+        user_id: user.id,
+        refresh_token_id: user.refreshTokenId
+      }
+    })
+
+    req.data = {
+      refreshToken: user.refreshTokenId
+    }
+    next();
+  } catch (error) {
+    console.log("error in logout: ", error);
+    const statusCode = error.statusCode || 500;
+    commonErrorHandler(req, res, error.message, statusCode, error);
+  }
+}
+
 module.exports = {
   addUser,
   loginUser,
