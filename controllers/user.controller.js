@@ -215,27 +215,25 @@ const generateAccessToken = async (req, res, next) => {
   }
 };
 
-const logout = async(req, res, next) => {
+const logoutUser = async (req, res, next) => {
   try {
-    const {user} = req;
+    const { user } = req;
 
-    await model.UserA_iduthenticate.destroy({
-      where {
-        user_id: user.id,
-        refresh_token_id: user.refreshTokenId
+    await model.UserAuthenticate.destroy({
+      where: {
+        userId: user.userId,
+        refreshTokenId: user.refreshTokenId
       }
-    })
+    });
+    req.statusCode = 204;
 
-    req.data = {
-      refreshToken: user.refreshTokenId
-    }
     next();
   } catch (error) {
-    console.log("error in logout: ", error);
+    console.log('error in logout: ', error);
     const statusCode = error.statusCode || 500;
     commonErrorHandler(req, res, error.message, statusCode, error);
   }
-}
+};
 
 module.exports = {
   addUser,
@@ -243,5 +241,6 @@ module.exports = {
   forgetPassword,
   resetPassword,
   updateUser,
-  generateAccessToken
+  generateAccessToken,
+  logoutUser
 };
