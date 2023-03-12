@@ -1,12 +1,19 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('court_detail', {
+    await queryInterface.createTable('booking', {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('uuid_generate_v4()')
+      },
+      user_id: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'user',
+          key: 'id'
+        }
       },
       court_id: {
         type: Sequelize.UUID,
@@ -15,15 +22,18 @@ module.exports = {
           key: 'id'
         }
       },
-      booking_type: {
+      date: {
+        type: Sequelize.DATE
+      },
+      start_time: {
+        type: Sequelize.DATE
+      },
+      end_time: {
+        type: Sequelize.DATE
+      },
+      status: {
         type: Sequelize.ENUM,
-        values: ['single', 'multiple']
-      },
-      capacity: {
-        type: Sequelize.INTEGER
-      },
-      count: {
-        type: Sequelize.INTEGER
+        values: ['successful', 'cancel', 'reject', 'pending']
       },
       created_at: {
         allowNull: false,
@@ -34,10 +44,15 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW
+      },
+      deleted_at: {
+        allowNull: true,
+        type: Sequelize.DATE,
+        defaultValue: null
       }
     });
   },
   async down(queryInterface) {
-    await queryInterface.dropTable('court_detail');
+    await queryInterface.dropTable('booking');
   }
 };

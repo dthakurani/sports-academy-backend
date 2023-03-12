@@ -10,6 +10,10 @@ module.exports = sequelize => {
       this.hasOne(models.UserAuthenticate, {
         foreignKey: 'userId'
       });
+      this.hasMany(models.Booking, {
+        foreignKey: 'userId',
+        as: 'bookings'
+      });
     }
   }
   User.init(
