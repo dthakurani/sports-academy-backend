@@ -1,7 +1,5 @@
-const {
-  Model, Sequelize
-} = require('sequelize');
-module.exports = (sequelize) => {
+const { Model, Sequelize } = require('sequelize');
+module.exports = sequelize => {
   class Booking extends Model {
     /**
      * Helper method for defining associations.
@@ -22,39 +20,42 @@ module.exports = (sequelize) => {
       });
     }
   }
-  Booking.init({
-    courtId: {
-      type: Sequelize.UUID,
-      references: {
-        model: 'court',
-        key: 'id'
+  Booking.init(
+    {
+      courtId: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'court',
+          key: 'id'
+        }
+      },
+      userId: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'user',
+          key: 'id'
+        }
+      },
+      date: {
+        type: Sequelize.DATE
+      },
+      start_time: {
+        type: Sequelize.DATE
+      },
+      end_time: {
+        type: Sequelize.DATE
+      },
+      status: {
+        type: Sequelize.ENUM,
+        values: ['successful', 'cancel', 'reject', 'pending']
       }
     },
-    userId: {
-      type: Sequelize.UUID,
-      references: {
-        model: 'user',
-        key: 'id'
-      }
-    },
-    date: {
-      type: Sequelize.date
-    },
-    start_time: {
-      type: Sequelize.date
-    },
-    end_time: {
-      type: Sequelize.date
-    },
-    status: {
-      type: Sequelize.ENUM,
-      values: ['successful', 'cancel', 'reject', 'pending']
+    {
+      sequelize,
+      paranoid: true,
+      modelName: 'Booking',
+      tableName: 'booking'
     }
-  }, {
-    sequelize,
-    paranoid: true,
-    modelName: 'Booking',
-    tableName: 'booking'
-  });
+  );
   return Booking;
 };

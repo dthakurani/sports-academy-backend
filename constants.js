@@ -13,8 +13,9 @@ const responseMessages = {
   TOKEN_IS_REQUIRED: 'link is not valid.',
   COURT_NAME_MUST_BE_STRING: 'court name must be a valid string.',
   COURT_NAME_IS_REQUIRED: 'court name is a required field.',
-  INVALID_VALUE_FOR_BOOKING_TYPE: `booking type must be one of ${Object.values(BOOKING_TYPE)}`,,
-  INVALID_VALUE_FOR_POSITIVE_INTEGER: 'value must be a positive integer.'
+  INVALID_VALUE_FOR_BOOKING_TYPE: `booking type must be one of ${Object.values(BOOKING_TYPE)}`,
+  INVALID_VALUE_FOR_POSITIVE_INTEGER: 'value must be a positive integer.',
+  INVALID_VALUE_FOR_NUMBER: 'The number is required'
 };
 
 module.exports = {

@@ -20,6 +20,7 @@ const commonErrorHandler = async (req, res, message, statusCode = 500, error = n
 
 const customException = function (message, statusCode) {
   const error = new Error(message);
+  console.log(error);
   error.statusCode = statusCode || 422;
   return error;
 };
