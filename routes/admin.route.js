@@ -9,5 +9,6 @@ const { checkAdmin } = require('../middlewares/authorize');
 const router = Router();
 
 router.post('/court', checkAccessToken, checkAdmin, adminValidator.addCourt, adminController.addCourt, responseHandler);
+router.patch('/court/:id', checkAccessToken, checkAdmin, adminValidator.updateCourt, adminController.updateCourt, responseHandler);
 
 module.exports = router;
