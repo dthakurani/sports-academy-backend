@@ -152,7 +152,7 @@ const loginUser = async (req, res, next) => {
     next();
   } catch (error) {
     console.log('loginUser error:', error);
-    const statusCode = error.status || 500;
+    const statusCode = error.statusCode || 500;
     commonErrorHandler(req, res, error.message, statusCode, error);
   }
 };
