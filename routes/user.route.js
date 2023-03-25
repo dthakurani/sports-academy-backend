@@ -2,6 +2,8 @@ const { Router } = require('express');
 
 const userController = require('../controllers/user.controller');
 const userValidator = require('../validators/user.validator');
+const bookingValidator = require('../validators/booking.validator');
+const bookingController = require('../controllers/booking.controller');
 const { responseHandler } = require('../helper/generic-response');
 const { checkAccessToken, checkRefreshToken } = require('../middlewares/authenticate');
 
@@ -15,5 +17,6 @@ router.post('/login', userValidator.loginUserSchema, userController.loginUser, r
 router.post('/generate-access-token', checkRefreshToken, userController.generateAccessToken, responseHandler);
 router.delete('/', checkRefreshToken, userController.deleteUser, responseHandler);
 router.post('/logout', checkRefreshToken, userController.logoutUser, responseHandler);
+router.post('/booking', checkAccessToken, bookingValidator.addBooking, bookingController.addBooking, responseHandler);
 
 module.exports = router;
