@@ -31,5 +31,6 @@ const responseMessages = {
 };
 
 module.exports = {
-  responseMessages
+  responseMessages,
+  STATUS
 };

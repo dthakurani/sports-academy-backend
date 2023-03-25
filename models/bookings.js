@@ -40,10 +40,10 @@ module.exports = sequelize => {
         type: Sequelize.DATE
       },
       startTime: {
-        type: Sequelize.DATE
+        type: Sequelize.TIME
       },
       endTime: {
-        type: Sequelize.DATE
+        type: Sequelize.TIME
       },
       status: {
         type: Sequelize.ENUM,
