@@ -14,9 +14,7 @@ const addBooking = async (req, res, next) => {
     const existingUser = await model.User.findOne({
       id: userId
     });
-    if (!existingUser) {
-      throw customException('User not exists', 404);
-    }
+    if (!existingUser) throw customException('User not found', 404);
 
     const existingCourt = await model.Court.findOne({
       id: courtId
