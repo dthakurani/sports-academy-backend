@@ -36,6 +36,16 @@ const addBooking = async (req, res, next) => {
           },
           {
             endTime: { [Op.between]: [startTime, endTime] }
+          },
+          {
+            [Op.and]: [
+                {
+                    startTime: { [Op.lt]: startTime }
+                },
+                {
+                    endTime: { [Op.gt]: endTime }
+                }
+            ]
           }
         ]
       }
