@@ -32,18 +32,22 @@ const addBooking = async (req, res, next) => {
             courtId
           },
           {
-            startTime: { [Op.between]: [startTime, endTime] }
-          },
-          {
-            endTime: { [Op.between]: [startTime, endTime] }
-          },
-          {
-            [Op.and]: [
+            [Op.or]: [
                 {
-                    startTime: { [Op.lt]: startTime }
+                    startTime: { [Op.between]: [startTime, endTime] }
                 },
                 {
-                    endTime: { [Op.gt]: endTime }
+                    endTime: { [Op.between]: [startTime, endTime] }
+                },
+                {
+                    [Op.and]: [
+                        {
+                            startTime: { [Op.lt]: startTime }
+                        },
+                        {
+                            endTime: { [Op.gt]: endTime }
+                        }
+                    ]
                 }
             ]
           }
