@@ -23,7 +23,7 @@ module.exports = {
         }
       },
       date: {
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY
       },
       start_time: {
         type: Sequelize.TIME

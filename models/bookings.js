@@ -37,7 +37,7 @@ module.exports = sequelize => {
         }
       },
       date: {
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY
       },
       startTime: {
         type: Sequelize.TIME
