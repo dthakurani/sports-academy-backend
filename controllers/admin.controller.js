@@ -29,7 +29,7 @@ const addCourt = async (req, res, next) => {
 
     const newCourtDetails = await models.CourtDetail.create(
       {
-        courtId: newCourt.dataValues.id,
+        courtId: newCourt.id,
         bookingType,
         capacity,
         count
@@ -38,10 +38,10 @@ const addCourt = async (req, res, next) => {
     );
 
     req.data = {
-      newCourt: newCourt.dataValues.name,
-      bookingType: newCourtDetails.dataValues.bookingType,
-      capacity: newCourtDetails.dataValues.capacity,
-      count: newCourtDetails.dataValues.count
+      newCourt: newCourt.name,
+      bookingType: newCourtDetails.bookingType,
+      capacity: newCourtDetails.capacity,
+      count: newCourtDetails.count
     };
     await t.commit();
     req.statusCode = 201;
@@ -96,11 +96,11 @@ const updateCourt = async (req, res, next) => {
       include: 'courtDetail'
     });
     req.data = {
-      id: courtDetail.dataValues.id,
-      name: courtDetail.dataValues.name,
-      bookingType: courtDetail.courtDetail.dataValues.bookingType,
-      capacity: courtDetail.courtDetail.dataValues.capacity,
-      count: courtDetail.courtDetail.dataValues.count
+      id: courtDetail.id,
+      name: courtDetail.name,
+      bookingType: courtDetail.courtDetail.bookingType,
+      capacity: courtDetail.courtDetail.capacity,
+      count: courtDetail.courtDetail.count
     };
     req.statusCode = 200;
     next();

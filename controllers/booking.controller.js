@@ -33,22 +33,22 @@ const addBooking = async (req, res, next) => {
           },
           {
             [Op.or]: [
-                {
-                    startTime: { [Op.between]: [startTime, endTime] }
-                },
-                {
-                    endTime: { [Op.between]: [startTime, endTime] }
-                },
-                {
-                    [Op.and]: [
-                        {
-                            startTime: { [Op.lt]: startTime }
-                        },
-                        {
-                            endTime: { [Op.gt]: endTime }
-                        }
-                    ]
-                }
+              {
+                startTime: { [Op.between]: [startTime, endTime] }
+              },
+              {
+                endTime: { [Op.between]: [startTime, endTime] }
+              },
+              {
+                [Op.and]: [
+                  {
+                    startTime: { [Op.lt]: startTime }
+                  },
+                  {
+                    endTime: { [Op.gt]: endTime }
+                  }
+                ]
+              }
             ]
           }
         ]
@@ -56,7 +56,7 @@ const addBooking = async (req, res, next) => {
     });
 
     for (const booking of bookingExists) {
-      if (booking.dataValues.userId === userId) {
+      if (booking.userId === userId) {
         throw customException('booking exists for respective court and time by you.', 409);
       }
     }
@@ -65,7 +65,7 @@ const addBooking = async (req, res, next) => {
       courtId
     });
 
-    if (bookingExists.length < courtDetails.dataValues.count * courtDetails.dataValues.capacity) {
+    if (bookingExists.length < courtDetails.count * courtDetails.capacity) {
       await model.Booking.create(
         {
           courtId,

@@ -30,7 +30,7 @@ const addUser = async (req, res, next) => {
       email,
       password: hashedPassword
     });
-    const tokens = await generateToken(newUser.dataValues.id);
+    const tokens = await generateToken(newUser.id);
     req.statusCode = 201;
     req.data = {
       id: newUser.id,
@@ -64,12 +64,12 @@ const forgetPassword = async (req, res, next) => {
         resetPasswordToken: randomToken,
         resetPasswordExpires: resetPassawordLinkExpires
       },
-      { where: { id: user.dataValues.id } }
+      { where: { id: user.id } }
     );
     const templatePath = path.resolve('./templates/reset-password.ejs');
     const template = await ejs.renderFile(templatePath, { reset_password_link: resetPassawordLink });
     await mailer.sendMail({
-      to: user.dataValues.email,
+      to: user.email,
       subject: 'Reset password',
       html: template
     });
@@ -96,16 +96,16 @@ const resetPassword = async (req, res, next) => {
     });
     if (!existingResetToken) throw customException('invalid link', 404);
     const currentTime = new Date().getTime();
-    if (currentTime > existingResetToken.dataValues.reset_password_expires) throw customException('link expired', 498);
+    if (currentTime > existingResetToken.reset_password_expires) throw customException('link expired', 498);
 
     await model.User.update(
       { password: await bcrypt.hash(password, 10), resetPasswordToken: null, resetPasswordExpires: null },
-      { where: { id: existingResetToken.dataValues.id } }
+      { where: { id: existingResetToken.id } }
     );
     const templatePath = path.resolve('./templates/password-change.ejs');
     const template = await ejs.renderFile(templatePath);
     await mailer.sendMail({
-      to: existingResetToken.dataValues.email,
+      to: existingResetToken.email,
       subject: 'Password reset successfull',
       html: template
     });
@@ -140,7 +140,7 @@ const loginUser = async (req, res, next) => {
       throw customException('Email or Password is incorrect.', 401);
     }
 
-    const tokens = await generateToken(existingUser.dataValues.id);
+    const tokens = await generateToken(existingUser.id);
 
     req.statusCode = 200;
     req.data = {
