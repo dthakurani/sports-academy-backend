@@ -23,13 +23,13 @@ module.exports = {
         }
       },
       date: {
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY
       },
       start_time: {
-        type: Sequelize.DATE
+        type: Sequelize.TIME
       },
       end_time: {
-        type: Sequelize.DATE
+        type: Sequelize.TIME
       },
       status: {
         type: Sequelize.ENUM,

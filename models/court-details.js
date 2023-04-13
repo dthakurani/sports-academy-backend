@@ -24,10 +24,6 @@ module.exports = sequelize => {
           key: 'id'
         }
       },
-      bookingType: {
-        type: Sequelize.ENUM,
-        values: ['single', 'multiple']
-      },
       capacity: {
         type: Sequelize.INTEGER
       },
