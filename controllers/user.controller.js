@@ -262,6 +262,22 @@ const logoutUser = async (req, res, next) => {
   }
 };
 
+const getUserDataFromToken = async (req, res, next) => {
+  try {
+    const { user } = req;
+    req.data = {
+      id: user.id,
+      name: user.name,
+      email: user.email
+    };
+    next();
+  } catch (error) {
+    console.log('error in getUserDataFromToken: ', error);
+    const statusCode = error.statusCode || 500;
+    commonErrorHandler(req, res, error.message, statusCode, error);
+  }
+};
+
 module.exports = {
   addUser,
   loginUser,
@@ -270,5 +286,6 @@ module.exports = {
   updateUser,
   generateAccessToken,
   deleteUser,
-  logoutUser
+  logoutUser,
+  getUserDataFromToken
 };
