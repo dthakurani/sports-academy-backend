@@ -29,6 +29,6 @@ module.exports = {
     host: process.env.PRODUCTION_HOST,
     dialect: 'postgres'
   },
-  refereshSecretKey: process.env.REFERESH_SECRET_KEY,
+  refreshSecretKey: process.env.REFRESH_SECRET_KEY,
   accessSecretKey: process.env.ACCCESS_SECRET_KEY
 };

@@ -13,7 +13,7 @@ const generateToken = async userId => {
   };
   await model.UserAuthenticate.create(body);
 
-  const refereshToken = jwt.sign({ userId, tokenId: refreshTokenId }, process.env.REFERESH_SECRET_KEY, {
+  const refreshToken = jwt.sign({ userId, tokenId: refreshTokenId }, process.env.REFRESH_SECRET_KEY, {
     expiresIn: 900
   });
 
@@ -22,7 +22,7 @@ const generateToken = async userId => {
   });
 
   const token = {
-    refereshToken,
+    refreshToken,
     accessToken
   };
 

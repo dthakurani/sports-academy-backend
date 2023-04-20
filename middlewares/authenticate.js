@@ -36,7 +36,7 @@ const checkRefreshToken = async (req, res, next) => {
       throw customException('Access denied', 401);
     }
 
-    const decodedJwt = jwt.verify(refreshToken, process.env.REFERESH_SECRET_KEY);
+    const decodedJwt = jwt.verify(refreshToken, process.env.REFRESH_SECRET_KEY);
 
     const existingLogin = await models.UserAuthenticate.findOne({
       where: {
