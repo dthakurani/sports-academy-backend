@@ -18,5 +18,6 @@ router.post('/generate-access-token', checkRefreshToken, userController.generate
 router.delete('/', checkRefreshToken, userController.deleteUser, responseHandler);
 router.post('/logout', checkRefreshToken, userController.logoutUser, responseHandler);
 router.post('/booking', checkAccessToken, bookingValidator.addBooking, bookingController.addBooking, responseHandler);
+router.get('/', checkAccessToken, userController.getUserDataFromToken, responseHandler);
 
 module.exports = router;
