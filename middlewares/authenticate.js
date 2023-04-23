@@ -20,10 +20,11 @@ const checkAccessToken = async (req, res, next) => {
     });
     if (!existingLogin) throw customException('Please Login', 401);
     req.user = existingLogin.user.dataValues;
+    req.user.accessTokenId = decodedJwt.tokenId;
     next();
   } catch (error) {
     console.log('checkAccessToken error:', error);
-    const statusCode = error.status || 500;
+    const statusCode = error.status || 401;
     commonErrorHandler(req, res, error.message, statusCode, error);
   }
 };
@@ -52,7 +53,7 @@ const checkRefreshToken = async (req, res, next) => {
     next();
   } catch (error) {
     console.log('checkRefreshTOken error:', error);
-    const statusCode = error.statusCode || 500;
+    const statusCode = error.statusCode || 401;
     commonErrorHandler(req, res, error.message, statusCode, error);
   }
 };
