@@ -114,23 +114,20 @@ const updateCourt = async (req, res, next) => {
 
 const getAllCourts = async (req, res, next) => {
   try {
-    const { page } = req.params;
-    let limit;
+    const { page, limit } = req.query;
+
     let offset;
-    if (page !== 0) {
-      limit = req.params.limit;
-      offset = req.params.offset;
-    } else {
-      limit = null;
-      offset = null;
+    if (page > 0) {
+      offset = (page - 1) * limit;
     }
 
-    const courts = await models.Court.findAll({
-      limit,
-      offset,
+    const query = {
+      limit: limit && page > 0 ? limit : null,
+      offset: offset >= 0 ? offset : null,
       attributes: ['id', 'name'],
       include: { model: models.CourtDetail, attributes: ['courtId', 'capacity', 'count'], as: 'courtDetail', required: true }
-    });
+    };
+    const courts = await models.Court.findAll(query);
     req.data = courts;
     req.statusCode = 200;
     next();

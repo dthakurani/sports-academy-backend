@@ -51,20 +51,9 @@ const updateCourt = async (req, res, next) => {
 
 const getCourt = async (req, res, next) => {
   const schema = yup.object({
-    params: yup.object({
-      page: yup.number().min(0, 'page must be minimun 0').required('required'),
-      limit: yup
-        .number()
-        .typeError(responseMessages.INVALID_VALUE_FOR_NUMBER)
-        .integer(responseMessages.INVALID_VALUE_FOR_POSITIVE_INTEGER)
-        .positive(responseMessages.INVALID_VALUE_FOR_POSITIVE_INTEGER)
-        .nullable(true),
-      offset: yup
-        .number()
-        .typeError(responseMessages.INVALID_VALUE_FOR_NUMBER)
-        .integer(responseMessages.INVALID_VALUE_FOR_POSITIVE_INTEGER)
-        .positive(responseMessages.INVALID_VALUE_FOR_POSITIVE_INTEGER)
-        .nullable(true)
+    query: yup.object({
+      limit: yup.number().typeError(responseMessages.INVALID_VALUE_FOR_NUMBER).optional().default(10),
+      page: yup.number().typeError(responseMessages.INVALID_VALUE_FOR_NUMBER).required(responseMessages.VALID_PAGE_NUMBER_IS_REQUIRED).optional().default(0)
     })
   });
   validator(req, res, schema, next);
