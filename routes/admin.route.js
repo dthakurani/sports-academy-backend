@@ -1,4 +1,6 @@
 const { Router } = require('express');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
 
 const adminController = require('../controllers/admin.controller');
 const adminValidator = require('../validators/admin.validator');
@@ -8,7 +10,7 @@ const { checkAdmin } = require('../middlewares/authorize');
 
 const router = Router();
 
-router.post('/court', checkAccessToken, checkAdmin, adminValidator.addCourt, adminController.addCourt, responseHandler);
+router.post('/court', checkAccessToken, checkAdmin, adminValidator.addCourt, upload.single('file'), adminController.addCourt, responseHandler);
 router.patch('/court/:id', checkAccessToken, checkAdmin, adminValidator.updateCourt, adminController.updateCourt, responseHandler);
 router.get('/courts', checkAccessToken, adminValidator.getCourt, adminController.getAllCourts, responseHandler);
 
