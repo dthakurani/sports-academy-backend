@@ -27,7 +27,8 @@ const responseMessages = {
   ID_REQUIRED: 'ID is a required field.',
   DATE_TIME_VALIDATION: 'a valid date time format is required.',
   VALID_END_TIME: 'end time must be more than strt time',
-  INVALID_VALUE_FOR_STATUS: `status must be one of ${Object.values(STATUS)}`
+  INVALID_VALUE_FOR_STATUS: `status must be one of ${Object.values(STATUS)}`,
+  VALID_PAGE_NUMBER_IS_REQUIRED: 'page number is a required field.'
 };
 
 module.exports = {

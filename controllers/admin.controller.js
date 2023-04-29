@@ -112,7 +112,34 @@ const updateCourt = async (req, res, next) => {
   }
 };
 
+const getAllCourts = async (req, res, next) => {
+  try {
+    const { page, limit } = req.query;
+
+    let offset;
+    if (page > 0) {
+      offset = (page - 1) * limit;
+    }
+
+    const query = {
+      limit: limit && page > 0 ? limit : null,
+      offset: offset >= 0 ? offset : null,
+      attributes: ['id', 'name'],
+      include: { model: models.CourtDetail, attributes: ['courtId', 'capacity', 'count'], as: 'courtDetail', required: true }
+    };
+    const courts = await models.Court.findAll(query);
+    req.data = courts;
+    req.statusCode = 200;
+    next();
+  } catch (error) {
+    console.log('get court details error: ', error);
+    const statusCode = error.statusCode || 500;
+    commonErrorHandler(req, res, error.message, statusCode, error);
+  }
+};
+
 module.exports = {
   addCourt,
-  updateCourt
+  updateCourt,
+  getAllCourts
 };

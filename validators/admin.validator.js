@@ -49,7 +49,18 @@ const updateCourt = async (req, res, next) => {
   validator(req, res, schema, next);
 };
 
+const getCourt = async (req, res, next) => {
+  const schema = yup.object({
+    query: yup.object({
+      limit: yup.number().typeError(responseMessages.INVALID_VALUE_FOR_NUMBER).optional().default(10),
+      page: yup.number().typeError(responseMessages.INVALID_VALUE_FOR_NUMBER).required(responseMessages.VALID_PAGE_NUMBER_IS_REQUIRED).optional().default(0)
+    })
+  });
+  validator(req, res, schema, next);
+};
+
 module.exports = {
   addCourt,
-  updateCourt
+  updateCourt,
+  getCourt
 };
