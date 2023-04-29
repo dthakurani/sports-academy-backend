@@ -248,8 +248,8 @@ const logoutUser = async (req, res, next) => {
 
     await model.UserAuthenticate.destroy({
       where: {
-        userId: user.userId,
-        refreshTokenId: user.refreshTokenId
+        userId: user.id,
+        accessTokenId: user.accessTokenId
       }
     });
     req.statusCode = 204;

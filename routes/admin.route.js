@@ -10,5 +10,6 @@ const router = Router();
 
 router.post('/court', checkAccessToken, checkAdmin, adminValidator.addCourt, adminController.addCourt, responseHandler);
 router.patch('/court/:id', checkAccessToken, checkAdmin, adminValidator.updateCourt, adminController.updateCourt, responseHandler);
+router.get('/courts', checkAccessToken, adminValidator.getCourt, adminController.getAllCourts, responseHandler);
 
 module.exports = router;

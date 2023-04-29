@@ -16,7 +16,7 @@ router.patch('/', checkAccessToken, userValidator.updateUserSchema, userControll
 router.post('/login', userValidator.loginUserSchema, userController.loginUser, responseHandler);
 router.post('/generate-access-token', checkRefreshToken, userController.generateAccessToken, responseHandler);
 router.delete('/', checkRefreshToken, userController.deleteUser, responseHandler);
-router.post('/logout', checkRefreshToken, userController.logoutUser, responseHandler);
+router.post('/logout', checkAccessToken, userController.logoutUser, responseHandler);
 router.post('/booking', checkAccessToken, bookingValidator.addBooking, bookingController.addBooking, responseHandler);
 router.get('/', checkAccessToken, userController.getUserDataFromToken, responseHandler);
 

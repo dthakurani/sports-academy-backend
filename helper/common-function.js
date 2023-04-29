@@ -8,7 +8,7 @@ const generateToken = async userId => {
   const accessTokenId = crypto.randomUUID();
 
   const refreshToken = jwt.sign({ userId, tokenId: refreshTokenId }, process.env.REFRESH_SECRET_KEY, {
-    expiresIn: 900
+    expiresIn: 7776000
   });
 
   const accessToken = jwt.sign({ userId, tokenId: accessTokenId }, process.env.ACCESS_SECRET_KEY, {
