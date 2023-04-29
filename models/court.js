@@ -8,10 +8,6 @@ module.exports = sequelize => {
      */
     static associate(models) {
       // define association here
-      this.hasOne(models.CourtDetail, {
-        foreignKey: 'courtId',
-        as: 'courtDetail'
-      });
       this.hasMany(models.Booking, {
         foreignKey: 'courtId',
         as: 'bookings'
@@ -22,6 +18,19 @@ module.exports = sequelize => {
     {
       name: {
         type: Sequelize.STRING
+      },
+      imageUrl: {
+        type: Sequelize.TEXT
+      },
+      description: {
+        type: Sequelize.JSON,
+        allowNull: true
+      },
+      capacity: {
+        type: Sequelize.INTEGER
+      },
+      count: {
+        type: Sequelize.INTEGER
       }
     },
     {
