@@ -117,8 +117,7 @@ const getAllCourts = async (req, res, next) => {
     const query = {
       limit: limit && page > 0 ? limit : null,
       offset: offset >= 0 ? offset : null,
-      attributes: ['id', 'name'],
-      include: { model: models.CourtDetail, attributes: ['courtId', 'capacity', 'count'], as: 'courtDetail', required: true }
+      attributes: ['id', 'name', 'capacity', 'count', 'image_url', 'description']
     };
     const courts = await models.Court.findAll(query);
     req.data = courts;
