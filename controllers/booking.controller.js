@@ -1,4 +1,3 @@
-/* eslint-disable no-plusplus */
 const { Op } = require('sequelize');
 const model = require('../models');
 const { customException, commonErrorHandler } = require('../helper/errorHandler');
@@ -33,22 +32,22 @@ const addBooking = async (req, res, next) => {
           },
           {
             [Op.or]: [
-                {
-                    startTime: { [Op.between]: [startTime, endTime] }
-                },
-                {
-                    endTime: { [Op.between]: [startTime, endTime] }
-                },
-                {
-                    [Op.and]: [
-                        {
-                            startTime: { [Op.lt]: startTime }
-                        },
-                        {
-                            endTime: { [Op.gt]: endTime }
-                        }
-                    ]
-                }
+              {
+                startTime: { [Op.between]: [startTime, endTime] }
+              },
+              {
+                endTime: { [Op.between]: [startTime, endTime] }
+              },
+              {
+                [Op.and]: [
+                  {
+                    startTime: { [Op.lt]: startTime }
+                  },
+                  {
+                    endTime: { [Op.gt]: endTime }
+                  }
+                ]
+              }
             ]
           }
         ]
@@ -78,7 +77,7 @@ const addBooking = async (req, res, next) => {
         { transaction: t }
       );
     } else {
-      throw customException('Court is not available for prefered time.', 409);
+      throw customException('Court is not available for preferred time.', 409);
     }
 
     req.data = {

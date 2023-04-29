@@ -16,7 +16,7 @@ const responseMessages = {
   EMAIL_IS_REQUIRED: 'email is a required field.',
   INVALID_EMAIL: 'email must be valid string.',
   PASSWORD_IS_REQUIRED: 'password is required field.',
-  INVALID_PASSWORD: 'password must be a valid field.',
+  INVALID_PASSWORD: 'Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character',
   TOKEN_IS_REQUIRED: 'link is not valid.',
   COURT_NAME_MUST_BE_STRING: 'court name must be a valid string.',
   COURT_NAME_IS_REQUIRED: 'court name is a required field.',
