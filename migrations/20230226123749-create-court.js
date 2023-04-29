@@ -11,6 +11,19 @@ module.exports = {
       name: {
         type: Sequelize.STRING
       },
+      image_url: {
+        type: Sequelize.TEXT
+      },
+      description: {
+        type: Sequelize.JSON,
+        allowNull: true
+      },
+      capacity: {
+        type: Sequelize.INTEGER
+      },
+      count: {
+        type: Sequelize.INTEGER
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

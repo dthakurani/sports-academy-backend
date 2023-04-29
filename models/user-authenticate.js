@@ -28,6 +28,9 @@ module.exports = sequelize => {
       },
       accessTokenId: {
         type: Sequelize.STRING
+      },
+      refreshTokenExpireTime: {
+        type: Sequelize.BIGINT
       }
     },
     {

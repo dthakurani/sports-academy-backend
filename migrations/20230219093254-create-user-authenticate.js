@@ -21,6 +21,9 @@ module.exports = {
       access_token_id: {
         type: Sequelize.STRING
       },
+      refresh_token_expire_time: {
+        type: Sequelize.BIGINT
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
