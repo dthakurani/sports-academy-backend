@@ -1,53 +1,46 @@
 const { sequelize } = require('../models');
 const models = require('../models');
 const { customException, commonErrorHandler } = require('../helper/errorHandler');
+const s3 = require('../helper/s3');
 
 const addCourt = async (req, res, next) => {
-  const t = await sequelize.transaction();
   try {
-    const { name, bookingType, capacity, count } = req.body;
+    const { file } = req;
+    const body = JSON.parse(req.body.court_details);
+    const { name, description, capacity, count } = body;
 
-    const existingCourt = await models.Court.findOne(
-      {
-        where: {
-          name
-        }
-      },
-      { transaction: t }
-    );
-
+    const existingCourt = await models.Court.findOne({
+      where: {
+        name
+      }
+    });
     if (existingCourt) {
       throw customException('Court already exists', 409);
     }
+    if (!file) throw customException('image is required', 400);
+    const fileName = name.replace(/\s+/g, '-').toLowerCase();
 
-    const newCourt = await models.Court.create(
-      {
-        name
-      },
-      { transaction: t }
-    );
+    const s3Upload = await s3.uploadImage(file, fileName);
 
-    const newCourtDetails = await models.CourtDetail.create(
-      {
-        courtId: newCourt.dataValues.id,
-        bookingType,
-        capacity,
-        count
-      },
-      { transaction: t }
-    );
+    const newCourt = await models.Court.create({
+      name,
+      capacity,
+      count,
+      description,
+      imageUrl: s3Upload.Location
+    });
 
     req.data = {
-      newCourt: newCourt.dataValues.name,
-      bookingType: newCourtDetails.dataValues.bookingType,
-      capacity: newCourtDetails.dataValues.capacity,
-      count: newCourtDetails.dataValues.count
+      name: newCourt.name,
+      imageUrl: newCourt.imageUrl,
+      description: newCourt.description,
+      capacity: newCourt.capacity,
+      count: newCourt.count
     };
-    await t.commit();
+
     req.statusCode = 201;
     next();
   } catch (error) {
-    await t.rollback();
     console.log('addCourt error:', error);
     const statusCode = error.statusCode || 500;
     commonErrorHandler(req, res, error.message, statusCode, error);
@@ -124,8 +117,7 @@ const getAllCourts = async (req, res, next) => {
     const query = {
       limit: limit && page > 0 ? limit : null,
       offset: offset >= 0 ? offset : null,
-      attributes: ['id', 'name'],
-      include: { model: models.CourtDetail, attributes: ['courtId', 'capacity', 'count'], as: 'courtDetail', required: true }
+      attributes: ['id', 'name', 'capacity', 'count', 'image_url', 'description']
     };
     const courts = await models.Court.findAll(query);
     req.data = courts;
