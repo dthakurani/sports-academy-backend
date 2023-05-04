@@ -85,8 +85,7 @@ const updateCourt = async (req, res, next) => {
     const courtDetail = await models.Court.findOne({
       where: {
         id: courtId
-      },
-      include: 'courtDetail'
+      }
     });
     req.data = {
       id: courtDetail.dataValues.id,
