@@ -11,6 +11,7 @@ const { mailer } = require('../helper/mailer');
 const { sequelize } = require('../models');
 
 const addUser = async (req, res, next) => {
+  const transaction = await sequelize.transaction();
   try {
     const { name, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -25,12 +26,15 @@ const addUser = async (req, res, next) => {
       throw customException('User already exists', 409);
     }
 
-    const newUser = await model.User.create({
-      name,
-      email,
-      password: hashedPassword
-    });
-    const tokens = await generateToken(newUser.dataValues.id);
+    const newUser = await model.User.create(
+      {
+        name,
+        email,
+        password: hashedPassword
+      },
+      { transaction }
+    );
+    const tokens = await generateToken(newUser.dataValues.id, transaction);
     req.statusCode = 201;
     req.data = {
       id: newUser.id,
@@ -38,8 +42,10 @@ const addUser = async (req, res, next) => {
       email: newUser.email,
       tokens
     };
+    await transaction.commit();
     next();
   } catch (error) {
+    await transaction.rollback();
     console.log('addUser error: ', error);
     const statusCode = error.statusCode || 500;
     commonErrorHandler(req, res, error.message, statusCode, error);
@@ -138,6 +144,11 @@ const loginUser = async (req, res, next) => {
 
     if (!passwordIsValid) {
       throw customException('Email or Password is incorrect.', 401);
+    }
+
+    const existingLogin = await model.UserAuthenticate.findOne({ where: { userId: existingUser.id } });
+    if (existingLogin) {
+      await model.UserAuthenticate.destroy({ where: { userId: existingUser.id } });
     }
 
     const tokens = await generateToken(existingUser.dataValues.id);

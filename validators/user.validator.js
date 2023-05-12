@@ -4,14 +4,19 @@ const { responseMessages } = require('../constants');
 const { validator } = require('../helper/validator');
 
 const addUserSchema = async (req, res, next) => {
+  console.log(req.body);
   const schema = yup.object({
     body: yup.object({
-      name: yup.string().required(responseMessages.USERNAME_IS_REQUIRED).typeError(responseMessages.USERNAME_MUST_BE_STRING),
-      email: yup.string().email(responseMessages.INVALID_EMAIL).required(responseMessages.EMAIL_IS_REQUIRED),
+      email: yup.string().email().required().label('email'),
       password: yup
         .string()
-        .required(responseMessages.PASSWORD_IS_REQUIRED)
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/, responseMessages.INVALID_PASSWORD)
+        .required()
+        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/, responseMessages.INVALID_PASSWORD),
+      name: yup
+        .string()
+        .matches(/^[A-Za-z\s]+$/, responseMessages.INVALID_USERNAME)
+        .required()
+        .label('name')
     })
   });
   validator(req, res, schema, next);
@@ -41,8 +46,8 @@ const resetPasswordSchema = async (req, res, next) => {
 const loginUserSchema = async (req, res, next) => {
   const schema = yup.object({
     body: yup.object({
-      email: yup.string().email(responseMessages.INVALID_EMAIL).required(responseMessages.EMAIL_IS_REQUIRED),
-      password: yup.string().required(responseMessages.PASSWORD_IS_REQUIRED)
+      email: yup.string().email().required().label('email'),
+      password: yup.string().required().label('password')
     })
   });
   validator(req, res, schema, next);
