@@ -3,9 +3,9 @@ const crypto = require('crypto');
 
 const model = require('../models');
 
-const generateToken = async userId => {
-  const refreshTokenId = crypto.randomUUID();
-  const accessTokenId = crypto.randomUUID();
+const generateToken = async (userId, transaction = null) => {
+  const refreshTokenId = `${crypto.randomUUID()}-${new Date().getTime()}`;
+  const accessTokenId = `${crypto.randomUUID()}-${new Date().getTime()}`;
 
   const refreshToken = jwt.sign({ userId, tokenId: refreshTokenId }, process.env.REFRESH_SECRET_KEY, {
     expiresIn: 7776000
@@ -22,7 +22,7 @@ const generateToken = async userId => {
     accessTokenId,
     refreshTokenExpireTime
   };
-  await model.UserAuthenticate.create(body);
+  await model.UserAuthenticate.create(body, { transaction });
 
   const token = {
     refreshToken,
