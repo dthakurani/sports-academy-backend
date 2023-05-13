@@ -34,7 +34,7 @@ const addUser = async (req, res, next) => {
       },
       { transaction }
     );
-    const tokens = await generateToken(newUser.dataValues.id, transaction);
+    const tokens = await generateToken(newUser.id, transaction);
     req.statusCode = 201;
     req.data = {
       id: newUser.id,
@@ -61,21 +61,21 @@ const forgetPassword = async (req, res, next) => {
       }
     });
     if (!user) throw customException('User Not Found', 404);
-    const randomToken = crypto.randomUUID();
-    const resetPassawordLink = `${process.env.BASE_URL}/api/user/reset-password/${randomToken}`;
-    let resetPassawordLinkExpires = new Date();
-    resetPassawordLinkExpires = resetPassawordLinkExpires.setMinutes(resetPassawordLinkExpires.getMinutes() + 15);
+    const randomToken = `${crypto.randomUUID()}-${new Date().getTime()}`;
+    const resetPasswordLink = `${process.env.BASE_URL}/api/user/reset-password/${randomToken}`;
+    let resetPasswordLinkExpires = new Date();
+    resetPasswordLinkExpires = resetPasswordLinkExpires.setMinutes(resetPasswordLinkExpires.getMinutes() + 15);
     await model.User.update(
       {
         resetPasswordToken: randomToken,
-        resetPasswordExpires: resetPassawordLinkExpires
+        resetPasswordExpires: resetPasswordLinkExpires
       },
-      { where: { id: user.dataValues.id } }
+      { where: { id: user.id } }
     );
     const templatePath = path.resolve('./templates/reset-password.ejs');
-    const template = await ejs.renderFile(templatePath, { reset_password_link: resetPassawordLink });
+    const template = await ejs.renderFile(templatePath, { reset_password_link: resetPasswordLink });
     await mailer.sendMail({
-      to: user.dataValues.email,
+      to: user.email,
       subject: 'Reset password',
       html: template
     });
@@ -102,17 +102,17 @@ const resetPassword = async (req, res, next) => {
     });
     if (!existingResetToken) throw customException('invalid link', 404);
     const currentTime = new Date().getTime();
-    if (currentTime > existingResetToken.dataValues.reset_password_expires) throw customException('link expired', 498);
+    if (currentTime > existingResetToken.reset_password_expires) throw customException('link expired', 498);
 
     await model.User.update(
       { password: await bcrypt.hash(password, 10), resetPasswordToken: null, resetPasswordExpires: null },
-      { where: { id: existingResetToken.dataValues.id } }
+      { where: { id: existingResetToken.id } }
     );
     const templatePath = path.resolve('./templates/password-change.ejs');
     const template = await ejs.renderFile(templatePath);
     await mailer.sendMail({
-      to: existingResetToken.dataValues.email,
-      subject: 'Password reset successfull',
+      to: existingResetToken.email,
+      subject: 'Password reset successful',
       html: template
     });
     req.statusCode = 200;
@@ -151,7 +151,7 @@ const loginUser = async (req, res, next) => {
       await model.UserAuthenticate.destroy({ where: { userId: existingUser.id } });
     }
 
-    const tokens = await generateToken(existingUser.dataValues.id);
+    const tokens = await generateToken(existingUser.id);
 
     req.statusCode = 200;
     req.data = {
@@ -202,7 +202,7 @@ const generateAccessToken = async (req, res, next) => {
   try {
     const { user } = req;
 
-    const accessToken = crypto.randomUUID();
+    const accessToken = `${crypto.randomUUID()}-${new Date().getTime()}`;
 
     await model.UserAuthenticate.update(
       {
@@ -230,11 +230,11 @@ const generateAccessToken = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
   const transaction = await sequelize.transaction();
   try {
-    const { userId, refreshTokenId } = req.user;
+    const { userId, accessTokenId } = req.user;
     await model.UserAuthenticate.destroy({
       where: {
         userId,
-        refreshTokenId
+        accessTokenId
       },
       transaction
     });
@@ -246,6 +246,7 @@ const deleteUser = async (req, res, next) => {
     });
     await transaction.commit();
     req.statusCode = 204;
+    req.message = 'logout successfully';
     next();
   } catch (error) {
     await transaction.rollback();

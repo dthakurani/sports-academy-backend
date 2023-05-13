@@ -19,7 +19,7 @@ const checkAccessToken = async (req, res, next) => {
       include: 'user'
     });
     if (!existingLogin) throw customException('Please Login', 401);
-    req.user = existingLogin.user.dataValues;
+    req.user = existingLogin.user;
     req.user.accessTokenId = decodedJwt.tokenId;
     next();
   } catch (error) {
@@ -48,7 +48,7 @@ const checkRefreshToken = async (req, res, next) => {
 
     if (!existingLogin) throw customException('Please Login', 401);
 
-    req.user = existingLogin.dataValues;
+    req.user = existingLogin;
     req.refreshToken = refreshToken;
     next();
   } catch (error) {
