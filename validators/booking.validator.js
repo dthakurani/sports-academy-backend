@@ -21,8 +21,7 @@ const addBooking = async (req, res, next) => {
             test: endTime => !!startTime && endTime > startTime,
             message: 'start time should be greater than end time'
           });
-        }),
-      status: yup.string().oneOf(['successful', 'cancel', 'reject', 'pending'], responseMessages.INVALID_VALUE_FOR_STATUS)
+        })
     })
   });
   validator(req, res, schema, next);
