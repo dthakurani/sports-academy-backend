@@ -88,11 +88,11 @@ const updateCourt = async (req, res, next) => {
       }
     });
     req.data = {
-      id: courtDetail.dataValues.id,
-      name: courtDetail.dataValues.name,
-      bookingType: courtDetail.courtDetail.dataValues.bookingType,
-      capacity: courtDetail.courtDetail.dataValues.capacity,
-      count: courtDetail.courtDetail.dataValues.count
+      id: courtDetail.id,
+      name: courtDetail.name,
+      bookingType: courtDetail.courtDetail.bookingType,
+      capacity: courtDetail.courtDetail.capacity,
+      count: courtDetail.courtDetail.count
     };
     req.statusCode = 200;
     next();
