@@ -11,12 +11,16 @@ const addBooking = async (req, res, next) => {
     const userId = req.user.id;
 
     const existingUser = await model.User.findOne({
-      id: userId
+      where: {
+        id: userId
+      }
     });
     if (!existingUser) throw customException('User not found', 404);
 
     const existingCourt = await model.Court.findOne({
-      id: courtId
+      where: {
+        id: courtId
+      }
     });
     if (!existingCourt) {
       throw customException('Court not exists', 404);
@@ -55,16 +59,12 @@ const addBooking = async (req, res, next) => {
     });
 
     for (const booking of bookingExists) {
-      if (booking.dataValues.userId === userId) {
+      if (booking.userId === userId) {
         throw customException('booking exists for respective court and time by you.', 409);
       }
     }
 
-    const courtDetails = await model.CourtDetail.findOne({
-      courtId
-    });
-
-    if (bookingExists.length < courtDetails.dataValues.count * courtDetails.dataValues.capacity) {
+    if (bookingExists.length < existingCourt.count * existingCourt.capacity) {
       await model.Booking.create(
         {
           courtId,
