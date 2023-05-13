@@ -25,6 +25,24 @@ const addBooking = async (req, res, next) => {
     if (!existingCourt) {
       throw customException('Court not exists', 404);
     }
+
+    const todayDate = new Date();
+    if (date < todayDate.toISOString().slice(0, 10)) {
+      throw customException('Valid date is required', 400);
+    }
+
+    const beginTime = startTime.split(':');
+    const finishTime = endTime.split(':');
+
+    if (
+      startTime < todayDate.toTimeString().slice(0, 8) ||
+      beginTime[1] !== '00' ||
+      finishTime[1] !== '00' ||
+      parseInt(beginTime[0]) + 1 !== parseInt(finishTime[0]) ||
+      (beginTime[0] < '6' && finishTime[0] > '23')
+    ) {
+      throw customException('Valid time is required', 400);
+    }
     const bookingExists = await model.Booking.findAll({
       where: {
         [Op.and]: [
