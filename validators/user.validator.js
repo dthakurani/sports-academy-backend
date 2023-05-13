@@ -4,7 +4,6 @@ const { responseMessages } = require('../constants');
 const { validator } = require('../helper/validator');
 
 const addUserSchema = async (req, res, next) => {
-  console.log(req.body);
   const schema = yup.object({
     body: yup.object({
       email: yup.string().email().required().label('email'),
