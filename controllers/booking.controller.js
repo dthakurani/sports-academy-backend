@@ -1,7 +1,5 @@
-const { Op } = require('sequelize');
 const model = require('../models');
 const { customException, commonErrorHandler } = require('../helper/errorHandler');
-const { sequelize } = require('../models');
 const { STATUS } = require('../constants');
 
 const addBooking = async (req, res, next) => {
@@ -93,6 +91,30 @@ const addBooking = async (req, res, next) => {
   }
 };
 
+const getBooking = async (req, res, next) => {
+  try {
+    const { courtId, date } = req.query;
+
+    const filter = {};
+    if (courtId) filter.courtId = courtId;
+    if (date) filter.date = date;
+
+    const bookings = await model.Booking.findAll({
+      where: filter,
+      attributes: ['courtId', 'userId', 'date', 'startTime', 'endTime', 'status']
+    });
+
+    req.data = bookings;
+    req.statusCode = 200;
+    next();
+  } catch (error) {
+    console.log('get booking error:', error);
+    const statusCode = error.statusCode || 500;
+    commonErrorHandler(req, res, error.message, statusCode, error);
+  }
+};
+
 module.exports = {
-  addBooking
+  addBooking,
+  getBooking
 };
