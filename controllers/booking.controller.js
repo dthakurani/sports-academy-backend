@@ -177,7 +177,44 @@ const updateBooking = async (req, res, next) => {
   }
 };
 
+const getBookingsById = async (req, res, next) => {
+  try {
+    const courtId = req.params.id;
+    const { date } = req.params;
+    const existingBookings = await model.Booking.findAll({
+      where: {
+        date,
+        courtId,
+        status: 'successful'
+      },
+      attribute: ['startTime', 'endTime'],
+      include: {
+        model: model.Court,
+        as: 'court',
+        attributes: ['id'],
+        where: {
+          id: courtId
+        }
+      }
+    });
+    if (!existingBookings) throw customException('court not found', 404);
+    const bookings = [];
+    existingBookings.forEach(booking => {
+      bookings.push([booking.startTime, booking.endTime]);
+    });
+    req.data = {
+      bookings
+    };
+    next();
+  } catch (error) {
+    console.log('getCourtDetails error: ', error);
+    const statusCode = error.statusCode || 500;
+    commonErrorHandler(req, res, error.message, statusCode, error);
+  }
+};
+
 module.exports = {
   addBooking,
-  updateBooking
+  updateBooking,
+  getBookingsById
 };

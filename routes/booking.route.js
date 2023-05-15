@@ -9,5 +9,6 @@ const router = Router();
 
 router.post('/', checkAccessToken, bookingValidator.addBooking, bookingController.addBooking, responseHandler);
 router.patch('/:id', checkAccessToken, bookingValidator.updateBooking, bookingController.updateBooking, responseHandler);
+router.get('/court/:id/:date', checkAccessToken, bookingValidator.getBookingsById, bookingController.getBookingsById, responseHandler);
 
 module.exports = router;

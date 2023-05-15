@@ -2,16 +2,17 @@ const { Router } = require('express');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 
-const adminController = require('../controllers/court.controller');
-const adminValidator = require('../validators/court.validator');
+const courtController = require('../controllers/court.controller');
+const courtValidator = require('../validators/court.validator');
 const { responseHandler } = require('../helper/generic-response');
 const { checkAccessToken } = require('../middlewares/authenticate');
 const { checkAdmin } = require('../middlewares/authorize');
 
 const router = Router();
 
-router.post('/', checkAccessToken, checkAdmin, adminValidator.addCourt, upload.single('file'), adminController.addCourt, responseHandler);
-router.patch('/:id', checkAccessToken, checkAdmin, adminValidator.updateCourt, adminController.updateCourt, responseHandler);
-router.get('/', checkAccessToken, adminController.getAllCourts, responseHandler);
+router.post('/', checkAccessToken, checkAdmin, courtValidator.addCourt, upload.single('file'), courtController.addCourt, responseHandler);
+router.patch('/:id', checkAccessToken, checkAdmin, courtValidator.updateCourt, courtController.updateCourt, responseHandler);
+router.get('/', checkAccessToken, courtController.getAllCourts, responseHandler);
+router.get('/:id', checkAccessToken, courtValidator.getCourtDetails, courtController.getCourtDetails, responseHandler);
 
 module.exports = router;

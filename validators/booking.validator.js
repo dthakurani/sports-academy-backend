@@ -53,7 +53,18 @@ const updateBooking = async (req, res, next) => {
   validator(req, res, schema, next);
 };
 
+const getBookingsById = async (req, res, next) => {
+  const schema = yup.object({
+    params: yup.object({
+      id: yup.string().uuid().required().label('court id'),
+      date: yup.date().typeError(responseMessages.DATE_TIME_VALIDATION).label('date')
+    })
+  });
+  validator(req, res, schema, next);
+};
+
 module.exports = {
   addBooking,
-  updateBooking
+  updateBooking,
+  getBookingsById
 };
