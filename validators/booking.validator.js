@@ -6,7 +6,7 @@ const { validator } = require('../helper/validator');
 const addBooking = async (req, res, next) => {
   const schema = yup.object({
     body: yup.object({
-      courtId: yup.string().uuid(responseMessages.ID_VALIDATION).required().label('courtId'),
+      courtId: yup.string().uuid().required().label('courtId'),
       date: yup.date().typeError(responseMessages.DATE_TIME_VALIDATION).required().label('date'),
       startTime: yup
         .string()
@@ -66,7 +66,7 @@ const getBookingsById = async (req, res, next) => {
 const getBookingAdmin = async (req, res, next) => {
   const schema = yup.object({
     query: yup.object({
-      courtId: yup.string().uuid(responseMessages.ID_VALIDATION),
+      courtId: yup.string().uuid().label('courtId'),
       date: yup.date().typeError(responseMessages.DATE_TIME_VALIDATION)
     })
   });
