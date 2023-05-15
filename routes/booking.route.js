@@ -8,5 +8,6 @@ const { checkAccessToken } = require('../middlewares/authenticate');
 const router = Router();
 
 router.post('/', checkAccessToken, bookingValidator.addBooking, bookingController.addBooking, responseHandler);
+router.patch('/:id', checkAccessToken, bookingValidator.updateBooking, bookingController.updateBooking, responseHandler);
 
 module.exports = router;
