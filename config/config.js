@@ -11,7 +11,8 @@ module.exports = {
     dialect: 'postgres',
     define: {
       underscored: true
-    }
+    },
+    logging: false
   },
 
   test: {
