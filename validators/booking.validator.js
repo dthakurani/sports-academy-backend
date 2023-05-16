@@ -73,9 +73,19 @@ const getBookingAdmin = async (req, res, next) => {
   validator(req, res, schema, next);
 };
 
+const getBookingUser = async (req, res, next) => {
+  const schema = yup.object({
+    query: yup.object({
+      userId: yup.string().uuid().label('userId')
+    })
+  });
+  validator(req, res, schema, next);
+};
+
 module.exports = {
   addBooking,
   updateBooking,
   getBookingsById,
-  getBookingAdmin
+  getBookingAdmin,
+  getBookingUser
 };

@@ -213,7 +213,7 @@ const getBookingsById = async (req, res, next) => {
   }
 };
 
-const getBooking = async (req, res, next) => {
+const getBookingAdmin = async (req, res, next) => {
   try {
     const { courtId, date } = req.query;
 
@@ -236,9 +236,39 @@ const getBooking = async (req, res, next) => {
   }
 };
 
+const getBookingUser = async (req, res, next) => {
+  try {
+    let { userId } = req.query;
+    if (!userId) userId = req.user.id;
+
+    const existingBookings = await model.Booking.findAll({
+      include: [
+        {
+          model: model.User,
+          as: 'user',
+          where: { id: userId },
+          attributes: ['id']
+        }
+      ],
+      attributes: ['id', 'courtId', 'date', 'startTime', 'endTime', 'status']
+    });
+
+    if (!existingBookings) throw customException('User not found', 404);
+
+    req.data = existingBookings;
+    req.statusCode = 200;
+    next();
+  } catch (error) {
+    console.log('get booking error:', error);
+    const statusCode = error.statusCode || 500;
+    commonErrorHandler(req, res, error.message, statusCode, error);
+  }
+};
+
 module.exports = {
   addBooking,
   updateBooking,
   getBookingsById,
-  getBooking
+  getBookingAdmin,
+  getBookingUser
 };
