@@ -3,6 +3,7 @@ const path = require('path');
 const ejs = require('ejs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { Op } = require('sequelize');
 
 const model = require('../models');
 const { customException, commonErrorHandler } = require('../helper/errorHandler');
@@ -284,7 +285,22 @@ const getUserDataFromToken = async (req, res, next) => {
     };
     next();
   } catch (error) {
-    console.log('error in getUserDataFromToken: ', error);
+    console.log('getUserDataFromToken error: ', error);
+    const statusCode = error.statusCode || 500;
+    commonErrorHandler(req, res, error.message, statusCode, error);
+  }
+};
+
+const getAllUsers = async (req, res, next) => {
+  try {
+    const allUsers = await model.User.findAll({
+      where: { role: { [Op.not]: 'admin' } },
+      attributes: ['id', 'name', 'email']
+    });
+    req.data = allUsers;
+    next();
+  } catch (error) {
+    console.log('getAllUsers error: ', error);
     const statusCode = error.statusCode || 500;
     commonErrorHandler(req, res, error.message, statusCode, error);
   }
@@ -299,5 +315,6 @@ module.exports = {
   generateAccessToken,
   deleteUser,
   logoutUser,
-  getUserDataFromToken
+  getUserDataFromToken,
+  getAllUsers
 };
