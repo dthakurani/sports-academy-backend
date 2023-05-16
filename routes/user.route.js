@@ -17,6 +17,6 @@ router.post('/generate-access-token', checkRefreshToken, userController.generate
 router.delete('/', checkRefreshToken, userController.deleteUser, responseHandler);
 router.post('/logout', checkAccessToken, userController.logoutUser, responseHandler);
 router.get('/', checkAccessToken, userController.getUserDataFromToken, responseHandler);
-router.get('/all', checkAccessToken, checkAdmin, userController.getAllUsers, responseHandler);
+router.get('/admin/all', checkAccessToken, checkAdmin, userController.getAllUsers, responseHandler);
 
 module.exports = router;

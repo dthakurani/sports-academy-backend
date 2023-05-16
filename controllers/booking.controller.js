@@ -236,9 +236,63 @@ const getBooking = async (req, res, next) => {
   }
 };
 
+const userBookingsByUserId = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+
+    const allBookingsOfUser = await model.Booking.findAll({
+      where: {
+        userId
+      },
+      attributes: ['id', 'date', 'startTime', 'endTime', 'status'],
+      include: [
+        {
+          model: model.Court,
+          as: 'court',
+          attributes: ['id', 'name']
+        },
+        {
+          model: model.User,
+          as: 'user',
+          attributes: ['id', 'name', 'email']
+        }
+      ]
+    });
+    const userCourtDetailsWithBookings = {
+      user: {
+        id: allBookingsOfUser[0].user.id,
+        name: allBookingsOfUser[0].user.name,
+        email: allBookingsOfUser[0].user.email
+      },
+      court: {
+        id: allBookingsOfUser[0].court.id,
+        name: allBookingsOfUser[0].court.name
+      }
+    };
+    const bookings = [];
+    allBookingsOfUser.forEach(booking => {
+      bookings.push({
+        id: booking.id,
+        data: booking.date,
+        startTime: booking.startTime,
+        endTime: booking.endTime,
+        status: booking.status
+      });
+    });
+    userCourtDetailsWithBookings.bookings = bookings;
+    req.data = userCourtDetailsWithBookings;
+    next();
+  } catch (error) {
+    console.log('userBookingsByUserId error:', error);
+    const statusCode = error.statusCode || 500;
+    commonErrorHandler(req, res, error.message, statusCode, error);
+  }
+};
+
 module.exports = {
   addBooking,
   updateBooking,
   getBookingsById,
-  getBooking
+  getBooking,
+  userBookingsByUserId
 };
