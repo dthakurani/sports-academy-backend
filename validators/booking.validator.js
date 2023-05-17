@@ -10,18 +10,18 @@ const addBooking = async (req, res, next) => {
       date: yup.date().typeError(responseMessages.DATE_TIME_VALIDATION).required().label('date'),
       startTime: yup
         .string()
+        .matches(/^([01]?[0-9]|2[0-3]):[0][0]$/, responseMessages.DATE_TIME_VALIDATION)
         .required()
-        .matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, responseMessages.DATE_TIME_VALIDATION),
+        .label('start time'),
       endTime: yup
         .string()
-        .required()
-        .matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, responseMessages.DATE_TIME_VALIDATION)
-        .when('startTime', (startTime, timeSchema) => {
-          return timeSchema.test({
-            test: endTime => !!startTime && endTime > startTime,
-            message: 'start time should be greater than end time'
-          });
+        .matches(/^([01]?[0-9]|2[0-3]):[0][0]$/, responseMessages.DATE_TIME_VALIDATION)
+        .test('isLarger', 'end time must be larger than start time', (value, testContext) => {
+          if (parseInt(testContext.parent.startTime.split(':')[0]) + 1 !== parseInt(value.split(':')[0])) return false;
+          return true;
         })
+        .required()
+        .label('end time')
     })
   });
   validator(req, res, schema, next);
@@ -33,31 +33,19 @@ const updateBooking = async (req, res, next) => {
       id: yup.string().uuid().required().label('booking id')
     }),
     body: yup.object({
-      date: yup.date().typeError(responseMessages.DATE_TIME_VALIDATION).label('date'),
-      status: yup.string().oneOf(['cancel']).label('booking status'),
-      startTime: yup
-        .string()
-        .matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, responseMessages.DATE_TIME_VALIDATION)
-        .nullable()
-        .label('start time'),
-      endTime: yup
-        .string()
-        .matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, responseMessages.DATE_TIME_VALIDATION)
-        .test('isLarger', 'end time must be larger than start time', (value, testContext) => {
-          if (testContext.parent.startTime > value) return false;
-          return true;
-        })
-        .label('end time')
+      status: yup.string().oneOf(['cancel']).label('booking status')
     })
   });
   validator(req, res, schema, next);
 };
 
-const getBookingsById = async (req, res, next) => {
+const getBookingsByCourtId = async (req, res, next) => {
   const schema = yup.object({
     params: yup.object({
-      id: yup.string().uuid().required().label('court id'),
-      date: yup.date().typeError(responseMessages.DATE_TIME_VALIDATION).label('date')
+      id: yup.string().uuid().required().label('court id')
+    }),
+    query: yup.object({
+      date: yup.date().typeError(responseMessages.DATE_TIME_VALIDATION).required().label('date')
     })
   });
   validator(req, res, schema, next);
@@ -85,7 +73,7 @@ const getBookingUser = async (req, res, next) => {
 module.exports = {
   addBooking,
   updateBooking,
-  getBookingsById,
+  getBookingsByCourtId,
   getBookingAdmin,
   getBookingUser
 };
