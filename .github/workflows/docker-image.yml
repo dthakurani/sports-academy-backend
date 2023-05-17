@@ -15,3 +15,12 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: docker build -t vaibhavrajnathchauhan/sports-academy-backend-staging:${{ github.run_number }} .
+    - name: Pushing docker images
+      run: |
+          docker login -u ${{secrets.DOCKER_HUB_USER}} -p ${{secrets.DOCKER_HUB_PASSWORD}}
+          docker push vaibhavrajnathchauhan/sports-academy-backend-staging:${{ github.run_number }}
+          
+    - name: Restarting the sever
+      run: |
+        echo ${{secrets.SERVER_KEY}} > server.pem
+        ssh -tt -i server.pem ec2-user@${{secrets.SERVER_IP}} "cd divyanshi/staging/ && BE_TAG=${{ github.run_number }} docker-compose up -d"
