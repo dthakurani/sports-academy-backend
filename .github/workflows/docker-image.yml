@@ -20,7 +20,10 @@ jobs:
           docker login -u ${{secrets.DOCKER_HUB_USER}} -p ${{secrets.DOCKER_HUB_PASSWORD}}
           docker push vaibhavrajnathchauhan/sports-academy-backend-staging:${{ github.run_number }}
           
+      
     - name: Restarting the sever
       run: |
-        echo ${{secrets.SERVER_KEY}} > server.pem
+        echo $SSH_KEY > server.pem
         ssh -tt -i server.pem ec2-user@${{secrets.SERVER_IP}} "cd divyanshi/staging/ && BE_TAG=${{ github.run_number }} docker-compose up -d"
+      env:
+        SSH_KEY: ${{secrets.SSH_KEY}}
