@@ -21,10 +21,14 @@ jobs:
 #           docker push vaibhavrajnathchauhan/sports-academy-backend-staging:${{ github.run_number }}
           
       
-    - name: Restarting the sever
-      run: |
-        ssh-keygen -R ${{secrets.SERVER_IP}}
-        echo $SSH_KEY > server.pem
-        ssh -tt -i server.pem ec2-user@${{secrets.SERVER_IP}} "cd divyanshi/staging/"
-      env:
-        SSH_KEY: ${{secrets.SSH_KEY}}
+#       && BE_TAG=${{ github.run_number }} docker-compose up -d     
+    - name: executing remote ssh commands using ssh key
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ec2-user
+        key: ${{secrets.SSH_KEY}}
+        script: |
+          cd divyanshi/staging/
+          pwd
+          
