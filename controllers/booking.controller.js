@@ -1,6 +1,7 @@
+const { Op, Sequelize } = require('sequelize');
+
 const model = require('../models');
 const { customException, commonErrorHandler } = require('../helper/errorHandler');
-const { STATUS } = require('../constants');
 
 const addBooking = async (req, res, next) => {
   try {
@@ -12,6 +13,7 @@ const addBooking = async (req, res, next) => {
         id: userId
       }
     });
+
     if (!existingUser) throw customException('User not found', 404);
 
     const existingCourt = await model.Court.findOne({
@@ -24,20 +26,16 @@ const addBooking = async (req, res, next) => {
     }
 
     const todayDate = new Date();
-    if (date < todayDate.toISOString().slice(0, 10)) {
+    const currentDate = todayDate.toISOString().slice(0, 10);
+    const currentHour = todayDate.getHours();
+    if (date < currentDate) {
       throw customException('Valid date is required', 400);
     }
 
     const beginTime = startTime.split(':');
     const finishTime = endTime.split(':');
 
-    if (
-      startTime < todayDate.toTimeString().slice(0, 8) ||
-      beginTime[1] !== '00' ||
-      finishTime[1] !== '00' ||
-      parseInt(beginTime[0]) + 1 !== parseInt(finishTime[0]) ||
-      (beginTime[0] < '6' && finishTime[0] > '23')
-    ) {
+    if ((beginTime[0] < currentHour && date < currentDate) || (beginTime[0] < '6' && finishTime[0] > '23')) {
       throw customException('Valid time is required', 400);
     }
     const whereQuery = {
@@ -50,36 +48,31 @@ const addBooking = async (req, res, next) => {
       where: whereQuery
     });
 
-    for (const booking of bookingExists) {
-      if (booking.userId === userId) {
-        throw customException('booking exists for respective court and time by you.', 409);
-      }
-    }
-
+    let booking = {};
     if (bookingExists.length < existingCourt.count * existingCourt.capacity) {
-      await model.Booking.create({
+      booking = await model.Booking.create({
         courtId,
         userId,
         date,
         startTime,
         endTime,
-        status: STATUS.PENDING
+        status: 'successful'
       });
     } else {
       throw customException('Court is not available for preferred time.', 409);
     }
 
     const courtDetails = await model.Court.findOne({
-      id: courtId
+      where: { id: courtId }
     });
 
     req.data = {
-      userId,
+      bookingId: booking.id,
       courtName: courtDetails.name,
       date,
       startTime,
       endTime,
-      status: 'pending'
+      status: 'successful'
     };
 
     req.statusCode = 201;
@@ -93,9 +86,13 @@ const addBooking = async (req, res, next) => {
 
 const updateBooking = async (req, res, next) => {
   try {
-    const { date, startTime, endTime, status } = req.body;
+    const { status } = req.body;
     const userId = req.user.id;
     const bookingId = req.params.id;
+
+    const todayDate = new Date();
+    const currentDate = todayDate.toISOString().slice(0, 10);
+    const currentHour = todayDate.getHours();
 
     const existingBooking = await model.Booking.findOne({
       where: {
@@ -109,62 +106,20 @@ const updateBooking = async (req, res, next) => {
     });
     if (!existingBooking) throw customException('Booking not found', 404);
 
-    const todayDate = new Date();
-    if (date || existingBooking.date) {
-      const bookingDate = date || existingBooking.date;
-      if (bookingDate < todayDate.toISOString().slice(0, 10)) {
-        throw customException('action can not be performed', 400);
-      }
-    }
-    if ((startTime && endTime) || (existingBooking.startTime && existingBooking.endTime)) {
-      const bookingStartTime = startTime || existingBooking.startTime;
-      const bookingEndTime = endTime || existingBooking.endTime;
-      const beginTime = bookingStartTime.split(':');
-      const finishTime = bookingEndTime.split(':');
-      console.log(bookingStartTime, `${todayDate.getHours()}:${todayDate.getMinutes()}`);
-      if (
-        bookingStartTime < todayDate.toTimeString().slice(0, 8) ||
-        beginTime[1] !== '00' ||
-        finishTime[1] !== '00' ||
-        parseInt(beginTime[0]) + 1 !== parseInt(finishTime[0]) ||
-        (beginTime[0] < '6' && finishTime[0] > '23')
-      ) {
-        throw customException('action can not be performed', 400);
-      }
+    const bookingStartTime = existingBooking.startTime.split(':')[0];
+    if (existingBooking.date < currentDate || (existingBooking.date === currentDate && bookingStartTime <= currentHour)) {
+      throw customException('action can not be performed', 400);
     }
 
-    const whereQuery = {
-      id: bookingId,
-      date: date || null,
-      startTime: startTime || null,
-      endTime: endTime || null
-    };
-    const bookingExists = await model.Booking.findAll({
-      where: whereQuery
-    });
-
-    for (const booking of bookingExists) {
-      if (booking.userId === userId) {
-        throw customException('booking exists for respective court and time by you.', 409);
-      }
-    }
-
-    if (bookingExists.length < existingBooking.court.count * existingBooking.court.capacity) {
-      if ((startTime && endTime) || date) {
-        req.body.status = 'pending';
-      }
-      await model.Booking.update(req.body, { where: { id: bookingId } });
-    } else {
-      throw customException('Court is not available for preferred time.', 409);
-    }
+    await model.Booking.update({ status }, { where: { id: bookingId } });
 
     const updateBookingResponse = {
       bookingId,
       courtName: existingBooking.court.name,
-      date: date || existingBooking.date,
-      startTime: startTime || existingBooking.startTime,
-      endTime: endTime || existingBooking.endTime,
-      status: status || 'pending'
+      date: existingBooking.date,
+      startTime: existingBooking.startTime,
+      endTime: existingBooking.endTime,
+      status
     };
 
     req.data = updateBookingResponse;
@@ -177,26 +132,35 @@ const updateBooking = async (req, res, next) => {
   }
 };
 
-const getBookingsById = async (req, res, next) => {
+const getBookingsByCourtId = async (req, res, next) => {
   try {
     const courtId = req.params.id;
-    const { date } = req.params;
+    const { date } = req.query;
+    const today = new Date();
+    const currentDate = today.toISOString().slice(0, 10);
+    const whereQuery = {
+      date,
+      status: 'successful'
+    };
+    if (date === currentDate) {
+      whereQuery.startTime = { [Op.gte]: `${today.getHours()}:00:00` };
+    }
+
     const existingBookings = await model.Booking.findAll({
-      where: {
-        date,
-        courtId,
-        status: 'successful'
-      },
-      attribute: ['startTime', 'endTime'],
+      attributes: ['startTime', 'endTime'],
+      where: whereQuery,
       include: {
         model: model.Court,
         as: 'court',
-        attributes: ['id'],
+        attributes: [],
         where: {
           id: courtId
         }
-      }
+      },
+      group: ['Booking.start_time', 'Booking.end_time', 'court.count', 'court.capacity'],
+      having: Sequelize.literal('COUNT(*) >= (court.count*court.capacity)')
     });
+
     if (!existingBookings) throw customException('court not found', 404);
     const bookings = [];
     existingBookings.forEach(booking => {
@@ -213,17 +177,34 @@ const getBookingsById = async (req, res, next) => {
   }
 };
 
-const getBooking = async (req, res, next) => {
+const getBookingsForAdmin = async (req, res, next) => {
   try {
-    const { courtId, date } = req.query;
+    const { courtId, date, status } = req.query;
 
     const filter = {};
     if (courtId) filter.courtId = courtId;
     if (date) filter.date = date;
+    if (status) filter.status = status;
 
     const bookings = await model.Booking.findAll({
       where: filter,
-      attributes: ['courtId', 'userId', 'date', 'startTime', 'endTime', 'status']
+      attributes: ['id', 'date', 'startTime', 'endTime', 'status'],
+      order: [
+        ['date', 'ASC'],
+        ['startTime', 'ASC']
+      ],
+      include: [
+        {
+          model: model.User,
+          as: 'user',
+          attributes: ['id', 'name', 'email']
+        },
+        {
+          model: model.Court,
+          as: 'court',
+          attributes: ['id', 'name']
+        }
+      ]
     });
 
     req.data = bookings;
@@ -236,54 +217,33 @@ const getBooking = async (req, res, next) => {
   }
 };
 
-const userBookingsByUserId = async (req, res, next) => {
+const getBookingsForUser = async (req, res, next) => {
   try {
-    const userId = req.params.id;
+    const userId = req.user.id;
 
-    const allBookingsOfUser = await model.Booking.findAll({
+    const existingBookings = await model.Booking.findAll({
       where: {
         userId
       },
+      include: {
+        model: model.Court,
+        as: 'court',
+        attributes: ['name']
+      },
       attributes: ['id', 'date', 'startTime', 'endTime', 'status'],
-      include: [
-        {
-          model: model.Court,
-          as: 'court',
-          attributes: ['id', 'name']
-        },
-        {
-          model: model.User,
-          as: 'user',
-          attributes: ['id', 'name', 'email']
-        }
+      order: [
+        ['date', 'ASC'],
+        ['startTime', 'ASC']
       ]
     });
-    const userCourtDetailsWithBookings = {
-      user: {
-        id: allBookingsOfUser[0].user.id,
-        name: allBookingsOfUser[0].user.name,
-        email: allBookingsOfUser[0].user.email
-      },
-      court: {
-        id: allBookingsOfUser[0].court.id,
-        name: allBookingsOfUser[0].court.name
-      }
-    };
-    const bookings = [];
-    allBookingsOfUser.forEach(booking => {
-      bookings.push({
-        id: booking.id,
-        data: booking.date,
-        startTime: booking.startTime,
-        endTime: booking.endTime,
-        status: booking.status
-      });
-    });
-    userCourtDetailsWithBookings.bookings = bookings;
-    req.data = userCourtDetailsWithBookings;
+
+    if (!existingBookings) throw customException('User not found', 404);
+
+    req.data = existingBookings;
+    req.statusCode = 200;
     next();
   } catch (error) {
-    console.log('userBookingsByUserId error:', error);
+    console.log('get booking error:', error);
     const statusCode = error.statusCode || 500;
     commonErrorHandler(req, res, error.message, statusCode, error);
   }
@@ -292,7 +252,7 @@ const userBookingsByUserId = async (req, res, next) => {
 module.exports = {
   addBooking,
   updateBooking,
-  getBookingsById,
-  getBooking,
-  userBookingsByUserId
+  getBookingsByCourtId,
+  getBookingsForAdmin,
+  getBookingsForUser
 };

@@ -10,8 +10,8 @@ const router = Router();
 
 router.post('/', checkAccessToken, bookingValidator.addBooking, bookingController.addBooking, responseHandler);
 router.patch('/:id', checkAccessToken, bookingValidator.updateBooking, bookingController.updateBooking, responseHandler);
-router.get('/court/:id/:date', checkAccessToken, bookingValidator.getBookingsById, bookingController.getBookingsById, responseHandler);
-router.get('/admin', checkAccessToken, checkAdmin, bookingValidator.getBookingAdmin, bookingController.getBooking, responseHandler);
-router.get('/admin/:id', checkAccessToken, checkAdmin, bookingValidator.userBookingsByUserId, bookingController.userBookingsByUserId, responseHandler);
+router.get('/court/:id', checkAccessToken, bookingValidator.getBookingsByCourtId, bookingController.getBookingsByCourtId, responseHandler);
+router.get('/admin', checkAccessToken, checkAdmin, bookingValidator.getBookingsForAdmin, bookingController.getBookingsForAdmin, responseHandler);
+router.get('/user', checkAccessToken, bookingValidator.getBookingsForUser, bookingController.getBookingsForUser, responseHandler);
 
 module.exports = router;
