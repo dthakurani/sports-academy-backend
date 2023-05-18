@@ -1,4 +1,3 @@
-const { Sequelize, Op } = require('sequelize');
 const model = require('../models');
 const { customException, commonErrorHandler } = require('../helper/errorHandler');
 
@@ -222,8 +221,7 @@ const getBookingAdmin = async (req, res, next) => {
 
 const getBookingUser = async (req, res, next) => {
   try {
-    let { userId } = req.query;
-    if (!userId) userId = req.user.id;
+    const userId = req.user.id;
 
     const existingBookings = await model.Booking.findAll({
       include: [

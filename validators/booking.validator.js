@@ -54,7 +54,7 @@ const getBookingsByCourtId = async (req, res, next) => {
 const getBookingAdmin = async (req, res, next) => {
   const schema = yup.object({
     query: yup.object({
-      courtId: yup.string().uuid().label('courtId'),
+      courtId: yup.string().uuid().label('court id'),
       date: yup.date().typeError(responseMessages.DATE_TIME_VALIDATION)
     })
   });
@@ -64,7 +64,7 @@ const getBookingAdmin = async (req, res, next) => {
 const getBookingUser = async (req, res, next) => {
   const schema = yup.object({
     query: yup.object({
-      userId: yup.string().uuid().label('userId')
+      userId: yup.string().uuid().label('user id')
     })
   });
   validator(req, res, schema, next);

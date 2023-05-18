@@ -4,6 +4,7 @@ const userController = require('../controllers/user.controller');
 const userValidator = require('../validators/user.validator');
 const { responseHandler } = require('../helper/generic-response');
 const { checkAccessToken, checkRefreshToken } = require('../middlewares/authenticate');
+const { checkAdmin } = require('../middlewares/authorize');
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.post('/generate-access-token', checkRefreshToken, userController.generate
 router.delete('/', checkRefreshToken, userController.deleteUser, responseHandler);
 router.post('/logout', checkAccessToken, userController.logoutUser, responseHandler);
 router.get('/', checkAccessToken, userController.getUserDataFromToken, responseHandler);
+router.get('/admin/all', checkAccessToken, checkAdmin, userController.getAllUsers, responseHandler);
 
 module.exports = router;
