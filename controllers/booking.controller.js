@@ -1,3 +1,5 @@
+const { Op, Sequelize } = require('sequelize');
+
 const model = require('../models');
 const { customException, commonErrorHandler } = require('../helper/errorHandler');
 
@@ -46,11 +48,6 @@ const addBooking = async (req, res, next) => {
       where: whereQuery
     });
 
-    for (const booking of bookingExists) {
-      if (booking.userId === userId) {
-        throw customException('booking exists for respective court and time by you.', 409);
-      }
-    }
     let booking = {};
     if (bookingExists.length < existingCourt.count * existingCourt.capacity) {
       booking = await model.Booking.create({
@@ -139,42 +136,30 @@ const getBookingsByCourtId = async (req, res, next) => {
   try {
     const courtId = req.params.id;
     const { date } = req.query;
+    const today = new Date();
+    const currentDate = today.toISOString().slice(0, 10);
+    const whereQuery = {
+      date,
+      status: 'successful'
+    };
+    if (date === currentDate) {
+      whereQuery.startTime = { [Op.gte]: `${today.getHours()}:00:00` };
+    }
+
     const existingBookings = await model.Booking.findAll({
-      where: {
-        date,
-        courtId,
-        status: 'successful'
-      },
+      attributes: ['startTime', 'endTime'],
+      where: whereQuery,
       include: {
         model: model.Court,
         as: 'court',
-        attributes: ['id'],
+        attributes: [],
         where: {
           id: courtId
         }
-      }
+      },
+      group: ['Booking.start_time', 'Booking.end_time', 'court.count', 'court.capacity'],
+      having: Sequelize.literal('COUNT(*) >= (court.count*court.capacity)')
     });
-
-    // const rows = await model.Booking.findAll({
-    //   where: {
-    //     date,
-    //     courtId,
-    //     status: 'successful'
-    //   },
-    //   attributes: ['date', [Sequelize.fn('COUNT', '*'), 'count']],
-    //   include: [
-    //     {
-    //       model: model.Court,
-    //       as: 'court',
-    //       attributes: [],
-    //       where: { id: courtId }
-    //     }
-    //   ],
-    //   group: ['Booking.date', 'Booking.startTime'],
-    //   having: Sequelize.where(Sequelize.fn('COUNT', '*'), Op.gte, model.Court.count)
-    // });
-
-    // console.log(rows);
 
     if (!existingBookings) throw customException('court not found', 404);
     const bookings = [];
@@ -192,20 +177,33 @@ const getBookingsByCourtId = async (req, res, next) => {
   }
 };
 
-const getBookingAdmin = async (req, res, next) => {
+const getBookingsForAdmin = async (req, res, next) => {
   try {
-    const { courtId, date } = req.query;
+    const { courtId, date, status } = req.query;
 
     const filter = {};
     if (courtId) filter.courtId = courtId;
     if (date) filter.date = date;
+    if (status) filter.status = status;
 
     const bookings = await model.Booking.findAll({
       where: filter,
-      attributes: ['courtId', 'userId', 'date', 'startTime', 'endTime', 'status'],
+      attributes: ['id', 'date', 'startTime', 'endTime', 'status'],
       order: [
         ['date', 'ASC'],
         ['startTime', 'ASC']
+      ],
+      include: [
+        {
+          model: model.User,
+          as: 'user',
+          attributes: ['id', 'name', 'email']
+        },
+        {
+          model: model.Court,
+          as: 'court',
+          attributes: ['id', 'name']
+        }
       ]
     });
 
@@ -219,20 +217,20 @@ const getBookingAdmin = async (req, res, next) => {
   }
 };
 
-const getBookingUser = async (req, res, next) => {
+const getBookingsForUser = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
     const existingBookings = await model.Booking.findAll({
-      include: [
-        {
-          model: model.User,
-          as: 'user',
-          where: { id: userId },
-          attributes: []
-        }
-      ],
-      attributes: ['id', 'courtId', 'date', 'startTime', 'endTime', 'status'],
+      where: {
+        userId
+      },
+      include: {
+        model: model.Court,
+        as: 'court',
+        attributes: ['name']
+      },
+      attributes: ['id', 'date', 'startTime', 'endTime', 'status'],
       order: [
         ['date', 'ASC'],
         ['startTime', 'ASC']
@@ -255,6 +253,6 @@ module.exports = {
   addBooking,
   updateBooking,
   getBookingsByCourtId,
-  getBookingAdmin,
-  getBookingUser
+  getBookingsForAdmin,
+  getBookingsForUser
 };
