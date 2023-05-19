@@ -36,7 +36,8 @@ module.exports = sequelize => {
     {
       sequelize,
       modelName: 'Court',
-      tableName: 'court'
+      tableName: 'court',
+      paranoid: true
     }
   );
   return Court;

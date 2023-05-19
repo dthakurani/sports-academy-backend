@@ -12,10 +12,10 @@ const addCourt = async (req, res, next) => {
         .matches(/^[A-Za-z\s]+$/, responseMessages.INVALID_USERNAME)
         .required()
         .label('court name'),
-      capacity: yup.number().integer().positive().nullable(true).required().label('capacity'),
-      count: yup.number().integer().positive().nullable(true).required().label('count')
-    }),
-    description: yup.object().required().label('description')
+      capacity: yup.number().integer().positive().nullable(true).label('capacity'),
+      count: yup.number().integer().positive().nullable(true).label('count'),
+      description: yup.object().required().label('description')
+    })
   });
   validator(req, res, schema, next);
 };
@@ -46,8 +46,18 @@ const getCourtDetails = async (req, res, next) => {
   validator(req, res, schema, next);
 };
 
+const deleteCourt = async (req, res, next) => {
+  const schema = yup.object({
+    params: yup.object({
+      id: yup.string().uuid().required().label('court id')
+    })
+  });
+  validator(req, res, schema, next);
+};
+
 module.exports = {
   addCourt,
   updateCourt,
-  getCourtDetails
+  getCourtDetails,
+  deleteCourt
 };
