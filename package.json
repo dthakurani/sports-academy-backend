@@ -17,7 +17,11 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
-    "configure-husky": "npx husky install && npx husky add .husky/pre-commit \"npx --no-install lint-staged\""
+    "configure-husky": "npx husky install && npx husky add .husky/pre-commit \"npx --no-install lint-staged\"",
+    "migrate": "npx sequelize-cli db:migrate",
+    "migrate:undo": "npx sequelize-cli db:migrate:undo:all",
+    "seed": "npx sequelize-cli db:seed:all",
+    "seed:undo": "npx sequelize-cli db:seed:undo:all"
   },
   "repository": {
     "type": "git",

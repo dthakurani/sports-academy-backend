@@ -49,30 +49,23 @@ const addCourt = async (req, res, next) => {
 };
 
 const updateCourt = async (req, res, next) => {
-  const t = await sequelize.transaction();
   try {
     const { name, bookingType, capacity, count } = req.body;
     const courtId = req.params.id;
 
-    const existingCourt = await model.Court.findOne(
-      {
-        where: {
-          id: courtId
-        }
-      },
-      { transaction: t }
-    );
+    const existingCourt = await model.Court.findOne({
+      where: {
+        id: courtId
+      }
+    });
 
     if (!existingCourt) {
       throw customException('Court not found', 404);
     }
     if (name) {
-      await model.Court.update(
-        {
-          name
-        },
-        { transaction: t }
-      );
+      await model.Court.update({
+        name
+      });
     }
     if (bookingType || capacity || count) {
       const payload = {};
@@ -81,7 +74,6 @@ const updateCourt = async (req, res, next) => {
       if (count) payload.count = count;
       await model.CourtDetail.update(payload, { where: { courtId } }, { transaction: t });
     }
-    await t.commit();
 
     const courtDetail = await model.Court.findOne({
       where: {
@@ -97,7 +89,6 @@ const updateCourt = async (req, res, next) => {
     req.statusCode = 200;
     next();
   } catch (error) {
-    await t.rollback();
     console.log('updateCourt error:', error);
     const statusCode = error.statusCode || 500;
     commonErrorHandler(req, res, error.message, statusCode, error);
@@ -167,9 +158,55 @@ const getCourtDetails = async (req, res, next) => {
   }
 };
 
+const deleteCourt = async (req, res, next) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const courtId = req.params.id;
+    const existingCourt = await model.Court.findOne({
+      where: {
+        id: courtId
+      }
+    });
+
+    if (!existingCourt) {
+      throw customException('Court not found', 404);
+    }
+
+    await model.Court.destroy(
+      {
+        where: {
+          id: courtId
+        }
+      },
+      transaction
+    );
+
+    await model.Booking.update(
+      {
+        status: 'cancel'
+      },
+      {
+        where: {
+          courtId
+        }
+      },
+      transaction
+    );
+    await transaction.commit();
+    req.statusCode = 204;
+    next();
+  } catch (error) {
+    await transaction.rollback();
+    console.log('delete court error: ', error);
+    const statusCode = error.statusCode || 500;
+    commonErrorHandler(req, res, error.message, statusCode, error);
+  }
+};
+
 module.exports = {
   addCourt,
   updateCourt,
   getAllCourts,
-  getCourtDetails
+  getCourtDetails,
+  deleteCourt
 };
