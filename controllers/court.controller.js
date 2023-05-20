@@ -159,9 +159,9 @@ const getCourtDetails = async (req, res, next) => {
 };
 
 const deleteCourt = async (req, res, next) => {
+  const transaction = await sequelize.transaction();
   try {
-    const { courtId } = req.params.id;
-    console.log(courtId);
+    const courtId = req.params.id;
     const existingCourt = await model.Court.findOne({
       where: {
         id: courtId
@@ -172,24 +172,31 @@ const deleteCourt = async (req, res, next) => {
       throw customException('Court not found', 404);
     }
 
-    await model.Court.destroy({
-      where: {
-        id: courtId
-      }
-    });
+    await model.Court.destroy(
+      {
+        where: {
+          id: courtId
+        }
+      },
+      transaction
+    );
 
     await model.Booking.update(
       {
-        status: 'Cancel'
+        status: 'cancel'
       },
       {
-        where: courtId
-      }
+        where: {
+          courtId
+        }
+      },
+      transaction
     );
-
+    await transaction.commit();
     req.statusCode = 204;
     next();
   } catch (error) {
+    await transaction.rollback();
     console.log('delete court error: ', error);
     const statusCode = error.statusCode || 500;
     commonErrorHandler(req, res, error.message, statusCode, error);
