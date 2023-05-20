@@ -42,7 +42,8 @@ const addBooking = async (req, res, next) => {
       date,
       courtId,
       startTime,
-      endTime
+      endTime,
+      status: 'successful'
     };
     const bookingExists = await model.Booking.findAll({
       where: whereQuery
@@ -84,9 +85,8 @@ const addBooking = async (req, res, next) => {
   }
 };
 
-const updateBooking = async (req, res, next) => {
+const cancelBooking = async (req, res, next) => {
   try {
-    const { status } = req.body;
     const userId = req.user.id;
     const bookingId = req.params.id;
 
@@ -106,12 +106,14 @@ const updateBooking = async (req, res, next) => {
     });
     if (!existingBooking) throw customException('Booking not found', 404);
 
+    if (existingBooking.status === 'cancel') throw customException('Action already performed', 498);
+
     const bookingStartTime = existingBooking.startTime.split(':')[0];
     if (existingBooking.date < currentDate || (existingBooking.date === currentDate && bookingStartTime <= currentHour)) {
       throw customException('action can not be performed', 400);
     }
 
-    await model.Booking.update({ status }, { where: { id: bookingId } });
+    await model.Booking.update({ status: 'cancel' }, { where: { id: bookingId } });
 
     const updateBookingResponse = {
       bookingId,
@@ -119,7 +121,7 @@ const updateBooking = async (req, res, next) => {
       date: existingBooking.date,
       startTime: existingBooking.startTime,
       endTime: existingBooking.endTime,
-      status
+      status: 'cancel'
     };
 
     req.data = updateBookingResponse;
@@ -138,12 +140,29 @@ const getBookingsByCourtId = async (req, res, next) => {
     const { date } = req.query;
     const today = new Date();
     const currentDate = today.toISOString().slice(0, 10);
+    let existingCourt;
+    let getBookingsByCourtIdResponse;
     const whereQuery = {
-      date,
+      date: date || currentDate,
       status: 'successful'
     };
-    if (date === currentDate) {
-      whereQuery.startTime = { [Op.gte]: `${today.getHours()}:00:00` };
+    if (!date) {
+      existingCourt = await model.Court.findOne({
+        where: {
+          id: courtId
+        },
+        attributes: ['id', 'name', 'imageUrl', 'description', 'count']
+      });
+      getBookingsByCourtIdResponse = {
+        id: existingCourt.id,
+        name: existingCourt.name,
+        count: existingCourt.count,
+        imageUrl: existingCourt.imageUrl,
+        description: existingCourt.description
+      };
+    }
+    if (!date || date === currentDate) {
+      whereQuery.startTime = { [Op.gte]: `${today.getHours() + 1}:00:00` };
     }
 
     const existingBookings = await model.Booking.findAll({
@@ -158,7 +177,8 @@ const getBookingsByCourtId = async (req, res, next) => {
         }
       },
       group: ['Booking.start_time', 'Booking.end_time', 'court.count', 'court.capacity'],
-      having: Sequelize.literal('COUNT(*) >= (court.count*court.capacity)')
+      having: Sequelize.literal('COUNT(*) >= (court.count*court.capacity)'),
+      order: [Sequelize.col('startTime')]
     });
 
     if (!existingBookings) throw customException('court not found', 404);
@@ -166,7 +186,9 @@ const getBookingsByCourtId = async (req, res, next) => {
     existingBookings.forEach(booking => {
       bookings.push([booking.startTime, booking.endTime]);
     });
+
     req.data = {
+      ...getBookingsByCourtIdResponse,
       bookings
     };
     next();
@@ -228,12 +250,12 @@ const getBookingsForUser = async (req, res, next) => {
       include: {
         model: model.Court,
         as: 'court',
-        attributes: ['name']
+        attributes: ['name', 'imageUrl']
       },
       attributes: ['id', 'date', 'startTime', 'endTime', 'status'],
       order: [
-        ['date', 'ASC'],
-        ['startTime', 'ASC']
+        ['date', 'DESC'],
+        ['startTime', 'DESC']
       ]
     });
 
@@ -251,7 +273,7 @@ const getBookingsForUser = async (req, res, next) => {
 
 module.exports = {
   addBooking,
-  updateBooking,
+  cancelBooking,
   getBookingsByCourtId,
   getBookingsForAdmin,
   getBookingsForUser

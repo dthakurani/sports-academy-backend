@@ -37,15 +37,6 @@ const updateCourt = async (req, res, next) => {
   validator(req, res, schema, next);
 };
 
-const getCourtDetails = async (req, res, next) => {
-  const schema = yup.object({
-    params: yup.object({
-      id: yup.string().uuid().required().label('court id')
-    })
-  });
-  validator(req, res, schema, next);
-};
-
 const deleteCourt = async (req, res, next) => {
   const schema = yup.object({
     params: yup.object({
@@ -58,6 +49,5 @@ const deleteCourt = async (req, res, next) => {
 module.exports = {
   addCourt,
   updateCourt,
-  getCourtDetails,
   deleteCourt
 };
