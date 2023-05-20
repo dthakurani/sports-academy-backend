@@ -1,4 +1,3 @@
-const { sequelize } = require('../models');
 const model = require('../models');
 const { customException, commonErrorHandler } = require('../helper/errorHandler');
 const s3 = require('../helper/s3');
@@ -72,7 +71,7 @@ const updateCourt = async (req, res, next) => {
       if (bookingType) payload.bookingType = bookingType;
       if (capacity) payload.capacity = capacity;
       if (count) payload.count = count;
-      await model.CourtDetail.update(payload, { where: { courtId } }, { transaction: t });
+      await model.CourtDetail.update(payload, { where: { courtId } });
     }
 
     const courtDetail = await model.Court.findOne({
@@ -120,44 +119,6 @@ const getAllCourts = async (req, res, next) => {
   }
 };
 
-const getCourtDetails = async (req, res, next) => {
-  try {
-    const courtId = req.params.id;
-    const date = new Date().toISOString().slice(0, 10);
-    const currentTime = `${new Date().getHours()}:00`;
-    const existingCourt = await model.Court.findOne({
-      where: { id: courtId },
-      include: {
-        model: model.Booking,
-        as: 'bookings',
-        required: false,
-        where: {
-          date,
-          status: 'successful'
-        }
-      }
-    });
-    if (!existingCourt) throw customException('Court not found', 404);
-    const bookings = [];
-    existingCourt.bookings.forEach(booking => {
-      if (booking.startTime >= currentTime) bookings.push([booking.startTime, booking.endTime]);
-    });
-    req.data = {
-      id: existingCourt.id,
-      name: existingCourt.name,
-      count: existingCourt.count,
-      imageUrl: existingCourt.imageUrl,
-      description: existingCourt.description,
-      bookings
-    };
-    next();
-  } catch (error) {
-    console.log('getCourtDetails error: ', error);
-    const statusCode = error.statusCode || 500;
-    commonErrorHandler(req, res, error.message, statusCode, error);
-  }
-};
-
 const deleteCourt = async (req, res, next) => {
   try {
     const { courtId } = req.params.id;
@@ -200,6 +161,5 @@ module.exports = {
   addCourt,
   updateCourt,
   getAllCourts,
-  getCourtDetails,
   deleteCourt
 };

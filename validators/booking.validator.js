@@ -27,13 +27,10 @@ const addBooking = async (req, res, next) => {
   validator(req, res, schema, next);
 };
 
-const updateBooking = async (req, res, next) => {
+const cancelBooking = async (req, res, next) => {
   const schema = yup.object({
     params: yup.object({
       id: yup.string().uuid().required().label('booking id')
-    }),
-    body: yup.object({
-      status: yup.string().oneOf(['cancel']).label('booking status')
     })
   });
   validator(req, res, schema, next);
@@ -45,7 +42,7 @@ const getBookingsByCourtId = async (req, res, next) => {
       id: yup.string().uuid().required().label('court id')
     }),
     query: yup.object({
-      date: yup.date().typeError(responseMessages.DATE_TIME_VALIDATION).required().label('date')
+      date: yup.date().typeError(responseMessages.DATE_TIME_VALIDATION).label('date')
     })
   });
   validator(req, res, schema, next);
@@ -73,7 +70,7 @@ const getBookingsForUser = async (req, res, next) => {
 
 module.exports = {
   addBooking,
-  updateBooking,
+  cancelBooking,
   getBookingsByCourtId,
   getBookingsForAdmin,
   getBookingsForUser
