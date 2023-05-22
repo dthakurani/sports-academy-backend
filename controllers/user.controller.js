@@ -159,6 +159,7 @@ const loginUser = async (req, res, next) => {
       id: existingUser.id,
       name: existingUser.name,
       email: existingUser.email,
+      role: existingUser.role,
       tokens
     };
     next();
@@ -281,7 +282,8 @@ const getUserDataFromToken = async (req, res, next) => {
     req.data = {
       id: user.id,
       name: user.name,
-      email: user.email
+      email: user.email,
+      role: user.role
     };
     next();
   } catch (error) {
