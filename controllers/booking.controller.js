@@ -253,10 +253,7 @@ const getBookingsForUser = async (req, res, next) => {
         attributes: ['name', 'imageUrl']
       },
       attributes: ['id', 'date', 'startTime', 'endTime', 'status'],
-      order: [
-        ['date', 'DESC'],
-        ['startTime', 'DESC']
-      ]
+      order: [['createdAt', 'DESC']]
     });
 
     if (!existingBookings) throw customException('User not found', 404);

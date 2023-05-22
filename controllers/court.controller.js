@@ -1,3 +1,5 @@
+const { sequelize } = require('../models');
+
 const model = require('../models');
 const { customException, commonErrorHandler } = require('../helper/errorHandler');
 const s3 = require('../helper/s3');
