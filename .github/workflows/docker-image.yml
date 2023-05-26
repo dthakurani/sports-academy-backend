@@ -12,17 +12,27 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build the Docker image
-        run: docker build -t vaibhavrajnathchauhan/sports-academy-backend-staging:${{ github.run_number }} .
+        run: docker build -t vaibhavrajnathchauhan/sports-academy-backend-production:${{ github.run_number }} .
       - name: Pushing docker images
         run: |
           docker login -u ${{secrets.DOCKER_HUB_USER}} -p ${{secrets.DOCKER_HUB_PASSWORD}}
-          docker push vaibhavrajnathchauhan/sports-academy-backend-staging:${{ github.run_number }}
+          docker push vaibhavrajnathchauhan/sports-academy-backend-production:${{ github.run_number }}
       - name: Recreating docker container
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.SERVER_IP }}
+          host: ${{ secrets.SERVER_IP_1 }}
           username: ec2-user
           key: ${{secrets.SERVER_KEY}}
           script: |
-            cd divyanshi/staging/
+            cd sports-academy/production
+            BE_TAG=${{ github.run_number }} docker-compose up -d
+
+      - name: Recreating docker container
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SERVER_IP_2 }}
+          username: ec2-user
+          key: ${{secrets.SERVER_KEY}}
+          script: |
+            cd sports-academy/production
             BE_TAG=${{ github.run_number }} docker-compose up -d
