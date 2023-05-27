@@ -52,7 +52,6 @@ const addCourt = async (req, res, next) => {
 const updateCourt = async (req, res, next) => {
   try {
     const { file } = req;
-    console.log(req.body);
     const body = JSON.parse(req.body.data);
     const courtId = req.params.id;
     const { name, description, capacity, count } = body;
@@ -72,7 +71,7 @@ const updateCourt = async (req, res, next) => {
     }
 
     const courtDetail = await model.Court.update(
-      { name, capacity, count, description, imageUrl: s3Upload.Location },
+      { name, capacity, count, description, imageUrl: s3Upload?.Location || existingCourt.imageUrl },
       { where: { id: courtId }, returning: true, plain: true }
     );
 
