@@ -7,7 +7,7 @@ const s3 = require('../helper/s3');
 const addCourt = async (req, res, next) => {
   try {
     const { file } = req;
-    const body = JSON.parse(req.body.court_details);
+    const body = JSON.parse(req.body.data);
     const { name, description, capacity, count } = body;
 
     const existingCourt = await model.Court.findOne({
@@ -51,9 +51,12 @@ const addCourt = async (req, res, next) => {
 
 const updateCourt = async (req, res, next) => {
   try {
-    const { name, bookingType, capacity, count } = req.body;
+    const { file } = req;
+    console.log(req.body);
+    const body = JSON.parse(req.body.data);
     const courtId = req.params.id;
-
+    const { name, description, capacity, count } = body;
+    let s3Upload;
     const existingCourt = await model.Court.findOne({
       where: {
         id: courtId
@@ -63,27 +66,21 @@ const updateCourt = async (req, res, next) => {
     if (!existingCourt) {
       throw customException('Court not found', 404);
     }
-    if (name) {
-      await model.Court.update({
-        name
-      });
-    }
-    if (bookingType || capacity || count) {
-      const payload = {};
-      if (bookingType) payload.bookingType = bookingType;
-      if (capacity) payload.capacity = capacity;
-      if (count) payload.count = count;
-      await model.CourtDetail.update(payload, { where: { courtId } });
+    if (file) {
+      const fileName = name.replace(/\s+/g, '-').toLowerCase();
+      s3Upload = await s3.uploadImage(file, fileName);
     }
 
-    const courtDetail = await model.Court.findOne({
-      where: {
-        id: courtId
-      }
-    });
+    const courtDetail = await model.Court.update(
+      { name, capacity, count, description, imageUrl: s3Upload.Location },
+      { where: { id: courtId }, returning: true, plain: true }
+    );
+
     req.data = {
       id: courtDetail.id,
       name: courtDetail.name,
+      imageUrl: courtDetail.imageUrl,
+      description: courtDetail.description,
       capacity: courtDetail.capacity,
       count: courtDetail.count
     };

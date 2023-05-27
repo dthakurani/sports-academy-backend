@@ -10,8 +10,8 @@ const { checkAdmin } = require('../middlewares/authorize');
 
 const router = Router();
 
-router.post('/', checkAccessToken, checkAdmin, courtValidator.addCourt, upload.single('file'), courtController.addCourt, responseHandler);
-router.patch('/admin/:id', checkAccessToken, checkAdmin, courtValidator.updateCourt, courtController.updateCourt, responseHandler);
+router.post('/', checkAccessToken, checkAdmin, upload.single('file'), courtController.addCourt, responseHandler);
+router.put('/:id', checkAccessToken, checkAdmin, upload.single('file'), courtController.updateCourt, responseHandler);
 router.get('/', checkAccessToken, courtController.getAllCourts, responseHandler);
 router.delete('/:id', checkAccessToken, checkAdmin, courtValidator.deleteCourt, courtController.deleteCourt, responseHandler);
 
